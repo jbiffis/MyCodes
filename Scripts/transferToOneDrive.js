@@ -26,6 +26,7 @@ fs.readdir(source, (err, files) => {
       var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
 
       var destDir = dest + '\\' + year + '\\' + month;
+      var destPath = destDir + '\\' + file;
 
       // If directory doesnt exist, create it.
       if (!fs.existsSync(destDir)){
@@ -33,8 +34,7 @@ fs.readdir(source, (err, files) => {
         fs.mkdirSync(destDir);
       }
 
-      var destPath = destDir + '\\' + file;
-      
+      // TODO: Add a feature to check if there's a duplicate filename buried in a subfolder.
       console.log('Copying File: ' + filepath + " ==> " + destPath);
       fs.rename(filepath, destPath);
 
