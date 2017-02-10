@@ -23,17 +23,23 @@ fs.readdir(source, (err, files) => {
       if (stats.isDirectory()) {
         return;
       }
-      
-      var ExifImage = require('exif').ExifImage;
 
-try {
+    try {
     new ExifImage({ image : filepath }, function (error, exifData) {
-        if (error)
+        if (error) {
             console.log('Error: '+error.message);
-        else
+            var ctime = stats.birthtime;
+            var year = ctime.getFullYear();
+            var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
+            var destDir = dest + '\\' + year + '\\' + month;
+
+            copyFiles(filepath, destDir, file);
+
+            
+        } else {
             var ctime = stats.birthtime;
             
-            if (exifData.exif) {
+            if (exifData && exifData.exif) {
               ctime = new Date(exifData.exif.DateTimeOriginal);
               var momentDate = moment(exifData.exif.DateTimeOriginal, 'YYYY-MM-DD HH:mm:ss')
               ctime = momentDate.toDate();
@@ -43,18 +49,10 @@ try {
             var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
 
             var destDir = dest + '\\' + year + '\\' + month;
-            var destPath = destDir + '\\' + file;
+            copyFiles(filepath, destDir, file);
 
-            // If directory doesnt exist, create it.
-            if (!fs.existsSync(destDir)){
-              console.log('Creating Directory ' + destDir);
-              fs.mkdirSync(destDir);
-            }
-
-            // TODO: Add a feature to check if there's a duplicate filename buried in a subfolder.
-            console.log('Copying File: ' + filepath + " ==> " + destPath);
-            //fs.rename(filepath, destPath);
-          });
+        } 
+      });
       } catch (error) {
           console.log('Error: ' + error.message);
       }
@@ -62,3 +60,18 @@ try {
 
   });
 });
+
+function copyFiles (filepath, destDir, file) {
+            
+  
+  var destPath = destDir + '\\' + file;
+  // If directory doesnt exist, create it.
+  if (!fs.existsSync(destDir)){
+    console.log('Creating Directory ' + destDir);
+    fs.mkdirSync(destDir);
+  }
+
+  // TODO: Add a feature to check if there's a duplicate filename buried in a subfolder.
+  console.log('Copying File: ' + filepath + " ==> " + destPath);
+  //fs.rename(filepath, destPath);
+}
