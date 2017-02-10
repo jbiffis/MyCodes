@@ -19,47 +19,62 @@ fs.readdir(source, (err, files) => {
     var filepath = source + '\\' + file;
 
     fs.stat(filepath, (err, stats) => {
-
+    
       if (stats.isDirectory()) {
         return;
       }
 
-    try {
-    new ExifImage({ image : filepath }, function (error, exifData) {
-        if (error) {
-            console.log('Error: '+error.message);
-            var ctime = stats.birthtime;
-            var year = ctime.getFullYear();
-            var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
-            var destDir = dest + '\\' + year + '\\' + month;
+      var fileType = file.split('.');
+      fileType = fileType[fileType.length-1].toLocaleLowerCase();
 
-            copyFiles(filepath, destDir, file);
+      if (['mov', 'avi', 'mp4', 'mkv', 'wmv'].indexOf(fileType) >= 0) {
+          var ctime = stats.mtime;
+          var year = ctime.getFullYear();
+          var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
+          var destDir = dest + '\\' + year + '\\' + month;
 
-            
-        } else {
-            var ctime = stats.birthtime;
-            
-            if (exifData && exifData.exif) {
-              ctime = new Date(exifData.exif.DateTimeOriginal);
-              var momentDate = moment(exifData.exif.DateTimeOriginal, 'YYYY-MM-DD HH:mm:ss')
-              ctime = momentDate.toDate();
+          copyFiles(filepath, destDir, file);
+      } else {
+        try {
+          new ExifImage({ image : filepath }, function (error, exifData) {
+              if (error) {
+                  console.log('Error: '+error.message);
+                  var ctime = stats.birthtime;
+                  var year = ctime.getFullYear();
+                  var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
+                  var destDir = dest + '\\' + year + '\\' + month;
+
+                  copyFiles(filepath, destDir, file);
+
+                  
+              } else {
+                  var ctime = stats.birthtime;
+                  
+                  if (exifData && exifData.exif) {
+                    ctime = new Date(exifData.exif.DateTimeOriginal);
+                    var momentDate = moment(exifData.exif.DateTimeOriginal, 'YYYY-MM-DD HH:mm:ss')
+                    ctime = momentDate.toDate();
+                  }
+
+                  var year = ctime.getFullYear();
+                  var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
+
+                  var destDir = dest + '\\' + year + '\\' + month;
+                  copyFiles(filepath, destDir, file);
+
+              } 
+              });
+            } catch (error) {
+                console.log('Error: ' + error.message);
             }
-
-            var year = ctime.getFullYear();
-            var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
-
-            var destDir = dest + '\\' + year + '\\' + month;
-            copyFiles(filepath, destDir, file);
-
-        } 
-      });
-      } catch (error) {
-          console.log('Error: ' + error.message);
-      }
+      }   
+      
     });
 
   });
 });
+
+
 
 function copyFiles (filepath, destDir, file) {
             
@@ -73,5 +88,5 @@ function copyFiles (filepath, destDir, file) {
 
   // TODO: Add a feature to check if there's a duplicate filename buried in a subfolder.
   console.log('Copying File: ' + filepath + " ==> " + destPath);
-  fs.rename(filepath, destPath);
+  //fs.rename(filepath, destPath);
 }
