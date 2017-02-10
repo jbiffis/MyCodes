@@ -73,5 +73,5 @@ function copyFiles (filepath, destDir, file) {
 
   // TODO: Add a feature to check if there's a duplicate filename buried in a subfolder.
   console.log('Copying File: ' + filepath + " ==> " + destPath);
-  //fs.rename(filepath, destPath);
+  fs.rename(filepath, destPath);
 }
