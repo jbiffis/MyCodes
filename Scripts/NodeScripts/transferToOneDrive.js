@@ -39,7 +39,7 @@ fs.readdir(source, (err, files) => {
           new ExifImage({ image : filepath }, function (error, exifData) {
               if (error) {
                   console.log('Error: '+error.message);
-                  var ctime = stats.birthtime;
+                  var ctime = stats.mtime;
                   var year = ctime.getFullYear();
                   var month = ("0" + (ctime.getMonth() + 1)).slice(-2) + ' - ' + ctime.toLocaleString(locale, { month: "long" });;
                   var destDir = dest + '\\' + year + '\\' + month;
@@ -80,6 +80,7 @@ function copyFiles (filepath, destDir, file) {
             
   
   var destPath = destDir + '\\' + file;
+  console.log('Copying File: ' + filepath + " ==> " + destPath);
   // If directory doesnt exist, create it.
   if (!fs.existsSync(destDir)){
     console.log('Creating Directory ' + destDir);
@@ -87,6 +88,7 @@ function copyFiles (filepath, destDir, file) {
   }
 
   // TODO: Add a feature to check if there's a duplicate filename buried in a subfolder.
-  console.log('Copying File: ' + filepath + " ==> " + destPath);
-  fs.rename(filepath, destPath);
+  if (destPath) {
+    fs.rename(filepath, destPath);
+  }
 }
