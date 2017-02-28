@@ -10,12 +10,6 @@ logger.add(logger.transports.File, { filename: 'log.log' });
 
 Promise.promisifyAll(fs);
 
-// need a set of task runners
-// go through the folders and run the task runners based on each.
-
-
-
-
 var hockeyVideos = function(directory) {
     // For each folder, get a list of all the input files and send them off to the transcoder   
     this.gamesToTranscode = {};
@@ -26,14 +20,13 @@ var hockeyVideos = function(directory) {
             return fs.statSync(filepath).isDirectory();
         })
         .map((gameFolder) => {
-            var outputFileName = gameFolder + ".mp4"
             var gameFolderPath = directory + '\\' + gameFolder;
-            this.gamesToTranscode[outputFileName] = new Array();
+            this.gamesToTranscode[gameFolderPath] = new Array();
 
             return fs.readdirAsync(gameFolderPath)
                 .map((filename) =>  {
                     var filepath = gameFolderPath + '\\' + filename;
-                    this.gamesToTranscode[outputFileName].push(filepath);
+                    this.gamesToTranscode[gameFolderPath].push(filepath);
                 });
         })
         .then(() => {
@@ -59,14 +52,15 @@ var transferToOneDrive = function() {
 }
 
 
-var tasks = [
+var tasksTest = [
     {
+        //'folder' : "E:\\tmp",
         "folder": "\\\\Mediabox\\m\\Videos\\Aylmer Express\\To Be Transcoded",
         "action": hockeyVideos
     }
 ]
 
-var tasks1 = [
+var tasks = [
     {
         "folder"  :   "M:\\Videos\\Aylmer Express\\To Be Transcoded",
         "action"  :   hockeyVideos
