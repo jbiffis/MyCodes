@@ -98,7 +98,7 @@ function _mergeFiles(inputFiles, mergedFile) {
                     return false;
                 }
                 
-                fs.appendFileSync(inputTextFile, sprintf("file '%s' \n",  file.substring(file.lastIndexOf("\\")+1)));
+                fs.appendFileSync(inputTextFile, sprintf("file '%s' \n\r",  file.substring(file.lastIndexOf("\\")+1)));
         });
 
         var startTime = process.hrtime();
