@@ -5,7 +5,7 @@ var transcoder = require('./transcoder.js');
 
 const convertHrtime = require('convert-hrtime');
 const logger = require('winston');
-logger.level = 'debug';
+logger.level = 'silly';
 logger.add(logger.transports.File, { filename: 'log.log' });
 
 Promise.promisifyAll(fs);

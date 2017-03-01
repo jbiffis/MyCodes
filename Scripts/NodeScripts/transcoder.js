@@ -2,6 +2,7 @@ var fs = require('fs');
 var FfmpegCommand = require('fluent-ffmpeg');
 var moment = require('moment');
 var Promise = require("bluebird");
+var sprintf = require("sprintf-js").sprintf;
 
 const convertHrtime = require('convert-hrtime');
 const logger = require('winston');
@@ -31,7 +32,7 @@ function transcodeFile(inputFile, outputFile, options) {
         options.size = options.size || 720;
 
         transcodeJob
-            .addInput(inputFile)
+            .input(inputFile)
             .videoBitrate(4024)
             .videoCodec('libx264')
             .size('?x' + options.size)
@@ -88,21 +89,28 @@ function _mergeFiles(inputFiles, mergedFile) {
     var job = new FfmpegCommand();
 
     var promise = new Promise(function(resolve, reject) {
+        //write the filenames to a txt file
+        var inputTextFile = mergedFile.substring(0, mergedFile.lastIndexOf("\\")+1) + "files.txt";
+
         inputFiles.forEach((file) => {
             if (!_validateFilepath(file)) {
                     logger.warn("Input file is invalid: %s", file);
                     return false;
                 }
                 
-                job.addInput(file);
+                fs.appendFileSync(inputTextFile, sprintf("file '%s' \n",  file.substring(file.lastIndexOf("\\")+1)));
         });
 
         var startTime = process.hrtime();
 
-        job.on('error', function(err) {
+        job.input(inputTextFile.replace(/\\/g, '/'))
+            .inputOptions('-f concat')
+            .videoCodec('copy')
+            .on('error', function(err) {
                 logger.error('Cannot merge video: ' + err.message);
                 reject(err);
             })
+            .output(mergedFile)
             .on('start', (commandLine) => {
                 logger.debug('Merging files with command line: %s', commandLine);
             })
@@ -112,9 +120,10 @@ function _mergeFiles(inputFiles, mergedFile) {
             .on('end', function() {
                 var diff = Math.floor(convertHrtime(process.hrtime(startTime)).s);
                 logger.debug('Merging to %s has finished in %s seconds', mergedFile, diff);
+                fs.unlinkSync(inputTextFile);
                 resolve(mergedFile);
             })
-            .mergeToFile(mergedFile, '/path/to/tempDir');        
+            .run()      
 
     });
 
@@ -122,8 +131,9 @@ function _mergeFiles(inputFiles, mergedFile) {
 }
 
 // ---------------- TEST FUNCTIONS -------------------------
-//Transcoder.transcodeFile('E:\\tmp\\sampleFile.mp4', 'E:\\tmp\\OutputFile.mp4', {});
-//Transcoder.transcodeFile('E:\\tmp\\sampleFile2.mp4', 'E:\\tmp\\OutputFile2.mp4', {});
-//Transcoder.transcodeFile('E:\\tmp\\sampleFile3.mp4', 'E:\\tmp\\OutputFile3.mp4', {});
+//Transcoder.transcodeFile('E:\\tmp\\sampleFile.mp4', 'E:\\tmp\\OutputFile', {});
+//Transcoder.transcodeFile('E:\\tmp\\sample\\samplevideos.txt', 'E:\\tmp\\OutputFile', {});
+//Transcoder.transcodeFile('E:\\tmp\\sampleFile2.mp4', 'E:\\tmp\\OutputFile2', {});
+//Transcoder.transcodeFile('E:\\tmp\\sampleFile3.mp4', 'E:\\tmp\\OutputFile3', {});
 
-//Transcoder.transcodeMulti(['E:\\tmp\\sampleFile2.mp4', 'E:\\tmp\\sampleFile2.mp4'], 'E:\\tmp\\OutputFile2', {});
+//Transcoder.transcodeMulti(['E:\\tmp\\sample\\sampleFile1.mp4', 'E:\\tmp\\sample\\sampleFile2.mp4'], 'E:\\tmp\\sample\\OutputFile2', {});
