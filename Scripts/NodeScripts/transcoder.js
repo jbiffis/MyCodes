@@ -74,7 +74,6 @@ function transcodeMulti(inputFiles, outputFile, options) {
         .then((mergedFilename) => {
             return this.transcodeFile(mergedFile, outputFile, options);
         });
-        // Then delete originals?  Move them to another folder and mark for deletion?  Archive?    
 }
 
 // ---------------- PRIVATE FUNCTIONS ----------------------
@@ -114,14 +113,12 @@ function _mergeFiles(inputFiles, mergedFile) {
             .on('start', (commandLine) => {
                 logger.debug('Merging files with command line: %s', commandLine);
             })
-            .on('progress', (progress) => {
-                logger.silly('Processing: %s% done', progress.percent ? Math.floor(progress.percent) : 'NA');
-            })
             .on('end', function() {
                 var diff = Math.floor(convertHrtime(process.hrtime(startTime)).s);
                 logger.debug('Merging to %s has finished in %s seconds', mergedFile, diff);
                 fs.unlinkSync(inputTextFile);
                 resolve(mergedFile);
+                // Delete the files?
             })
             .run()      
 
