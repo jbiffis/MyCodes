@@ -20,7 +20,7 @@ var hockeyVideos = function(directory) {
             return fs.statSync(filepath).isDirectory();
         })
         .map((gameFolder) => {
-            var gameFolderPath = directory + '\\' + gameFolder;
+            var gameFolderPath = directory + '\\' + gameFolder + '\\' + gameFolder;
             this.gamesToTranscode[gameFolderPath] = new Array();
 
             return fs.readdirAsync(gameFolderPath)
@@ -52,7 +52,7 @@ var transferToOneDrive = function() {
 }
 
 
-var tasksTest = [
+var tasks = [
     {
         //'folder' : "E:\\tmp",
         "folder": "\\\\Mediabox\\m\\Videos\\Aylmer Express\\To Be Transcoded",
@@ -60,7 +60,7 @@ var tasksTest = [
     }
 ]
 
-var tasks = [
+var tasks1 = [
     {
         "folder"  :   "M:\\Videos\\Aylmer Express\\To Be Transcoded",
         "action"  :   hockeyVideos
