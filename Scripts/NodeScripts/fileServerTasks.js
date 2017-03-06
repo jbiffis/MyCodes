@@ -1,9 +1,12 @@
+require('./constants.js');
 var fs = require('fs');
 var Promise = require("bluebird");
 var _ = require('underscore');
 var transcoder = require('./transcoder.js');
 var email = require('./mailer.js');
-
+var stats = require('./stats.js');
+const path = require('path');
+const util = require('util');
 const convertHrtime = require('convert-hrtime');
 const logger = require('winston');
 logger.level = 'debug';
@@ -19,19 +22,20 @@ var hockeyVideos = function(directory) {
 
     return fs.readdirAsync(directory)
         .filter((file) => {
-            var filepath = filepath = directory + '\\' + file;
+            var filepath = path.join(directory, file);
             return fs.statSync(filepath).isDirectory();
         })
         .map((gameFolder) => {
-            var gameFolderPath = directory + '\\' + gameFolder;
-            var gameFilename = gameFolderPath + '\\' + gameFolder;
+            var gameFolderPath = path.join(directory, gameFolder);
+            var gameFilePath = path.join(gameFolderPath, gameFolder);
+            // By this point our game file path will be E:\a\b\game\game.mp4
 
-            this.gamesToTranscode[gameFilename] = new Array();
+            this.gamesToTranscode[gameFilePath] = new Array();
 
             return fs.readdirAsync(gameFolderPath)
                 .map((filename) =>  {
                     var filepath = gameFolderPath + '\\' + filename;
-                    this.gamesToTranscode[gameFilename].push(filepath);
+                    this.gamesToTranscode[gameFilePath].push(filepath);
                 });
         })
         .then(() => {
@@ -39,14 +43,40 @@ var hockeyVideos = function(directory) {
 
             _.each(this.gamesToTranscode, function(clips, gameName)  {
                 clips.sort();
-                var transcodeJob = transcoder.transcodeMulti(clips, gameName);
+
+                var transcodeJob = {
+                    clips: clips,
+                    destFilename: gameName,
+                    status: STATUS_CODES.READY
+                };
+
                 transcodeJobs.push(transcodeJob);
             });
 
             return transcodeJobs;
         })
-        .mapSeries(function(finishedJob) {
-            console.log("done?");
+        .mapSeries(function(job) {
+            return transcoder.transcodeMulti(job.clips, job.destFilename)
+                .then((result) => {
+                    // send the info to the stats thing.
+                    stats.logEvent({
+                        module: MODULES.HOCKEY_VIDEOS,
+                        operation: 'combineGameFiles',
+                        message: util.format("Combined %d files into %s. (%d seconds)", job.clips.length, job.destFilename, result.timeElapsed),
+                        execTime: result.timeElapsed
+                    })
+                    job.status = STATUS_CODES.COMPLETED;
+                })
+                .catch((error) => {
+                    job.status = STATUS_CODES.ERROR;
+                    job.statusMessage = error.message;
+                    logger.error("Problem with Transcode")
+                });
+        })
+        .then(() => {
+            var summary = stats.getSummary();
+
+            email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Server Task Report', summary);
         });
         
         
@@ -79,6 +109,6 @@ tasks.forEach((task) => {
     task.action(task.folder)
         .then(() => {
             var logText = fs.readFileSync(logFile);
-            email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Script finished running', logText, logText);
+            //email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Script finished running', logText, logText);
         });
 });

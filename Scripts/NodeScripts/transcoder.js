@@ -50,7 +50,7 @@ function transcodeFile(inputFile, outputFile, options) {
             .on('end', (stdout, stderr) => {
                 var diff = Math.floor(convertHrtime(process.hrtime(startTime)).s);
                 logger.debug('Trancoding to %s has finished in %s seconds', outputFile, diff);
-                resolve();
+                resolve({timeElapsed: diff});
             });
 
         var startTime = process.hrtime();
