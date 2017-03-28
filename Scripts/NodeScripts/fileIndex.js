@@ -33,8 +33,10 @@ module.exports = fileIndexer;
 
 // Test functions
 
-fileIndexer.buildIndex('E:\\TestDest')
+fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
+//fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
+//fileIndexer.buildIndex('E:\\TestDest')
   .then(() =>  {
-      console.log(dataLayer.getFiles());
+      console.log("Number of Files: " + dataLayer.numberOfFiles());
     });
 //fileIndexer.buildIndex('E:\\tmp');

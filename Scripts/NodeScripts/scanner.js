@@ -20,10 +20,15 @@ function toMatcherFunction(ignoreEntry) {
 
 function newFile(filepath, stats) {
 
+  var filename = filepath.substring(filepath.lastIndexOf('\\') + 1);
+
   var file = {
     _id:      filepath,
+    name:     filename,
     size:     stats.size,
-    created:  stats.ctime
+    created:  stats.ctime,
+    accessed: stats.atime,
+    modified: stats.mtime
   }
 
   return file;

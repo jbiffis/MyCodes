@@ -13,6 +13,10 @@ var DataLayer =  {
 
     getFiles : function() {
         return data.get(TABLES.FILES);
+    },
+
+    numberOfFiles: function() {
+        return data.sizeOfTable(TABLES.FILES);
     }
 }
 
