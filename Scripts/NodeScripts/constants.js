@@ -13,3 +13,7 @@ global.STATUS_CODES = {
 global.MODULES = {
     HOCKEY_VIDEOS: "Express Game Videos"
 }
+
+global.TABLES = {
+    FILES: 'files'
+}

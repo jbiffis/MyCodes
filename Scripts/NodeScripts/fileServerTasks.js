@@ -87,7 +87,7 @@ var transferToOneDrive = function() {
 }
 
 
-var tasks = [
+var tasks2 = [
     {
         'folder' : "E:\\tmp",
         //"folder": "\\\\Mediabox\\m\\Videos\\Aylmer Express\\To Be Transcoded",
@@ -95,14 +95,14 @@ var tasks = [
     }
 ]
 
-var tasks1 = [
+var tasks = [
     {
         "folder"  :   "M:\\Videos\\Aylmer Express\\To Be Transcoded",
         "action"  :   hockeyVideos
-    }, {
+    }, /*{
         "folder"  :   "M:\\Temp Photo Landing Zone",
         "action"  :   transferToOneDrive
-    }
+    }*/
 ]
 
 tasks.forEach((task) => {

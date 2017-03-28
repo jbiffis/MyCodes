@@ -33,7 +33,7 @@ function transcodeFile(inputFile, outputFile, options) {
 
         transcodeJob
             .input(inputFile)
-            .videoBitrate(4024)
+            .videoBitrate(7024)
             .videoCodec('libx264')
             .size('?x' + options.size)
             .output(outputFile)
