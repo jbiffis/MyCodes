@@ -3,22 +3,25 @@ var fs = require('fs');
 var Promise = require("bluebird");
 var _ = require('underscore');
 var transcoder = require('./transcoder.js');
-var email = require('./mailer.js');
+//var email = require('./mailer.js');
 var stats = require('./stats.js');
+var FileIndexer = require('./fileIndex.js');
 const path = require('path');
 const util = require('util');
 const convertHrtime = require('convert-hrtime');
 const logger = require('winston');
-logger.level = 'debug';
+logger.level = 'silly';
 var logFile = 'log.log';
+var locale = "en-us";
 
 logger.add(logger.transports.File, { filename: logFile, prettyPrint: true });
 
 Promise.promisifyAll(fs);
 
-var hockeyVideos = function(directory) {
+var hockeyVideos = function(options) {
     // For each folder, get a list of all the input files and send them off to the transcoder   
     this.gamesToTranscode = {};
+    var directory = options.folder;
 
     return fs.readdirAsync(directory)
         .filter((file) => {
@@ -76,13 +79,83 @@ var hockeyVideos = function(directory) {
         .then(() => {
             var summary = stats.getSummary();
 
-            email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Server Task Report', summary);
+            //email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Server Task Report', summary);
         });
         
         
 }
 
-var transferToOneDrive = function() {
+var copyPhotosToOneDrive = function(options) {
+    // scan over the files
+    var sourceFiles, destFiles;
+
+    var source = new FileIndexer();
+    var dest = new FileIndexer();
+
+    return new Promise.join(source.buildIndex(options.folder), dest.buildIndex(options.destDir))
+        .then((result) => {
+            sourceFiles = result[0];
+            destFiles = result[1];
+
+            logger.silly("Source Files: %s, Destination Files: %s", sourceFiles.numberOfFiles(), destFiles.numberOfFiles());
+
+            return sourceFiles.getFiles();
+        })
+        .each((file) => {
+            // does it exist in Destination
+            
+            var matchingFiles = destFiles.findAllWhere({name: file.name});
+
+            if (matchingFiles.length  > 0) {
+                logger.silly("[%s] - File already in destination %d times", file._id, matchingFiles.length);
+
+                stats.logEvent({
+                    module: MODULES.PHOTO_COPY,
+                    operation: 'copyPhotosToOneDrive',
+                    result: 'duplicateFile',
+                    data: {
+                        originalFile: file,
+                        matchingFiles: matchingFiles
+                    },
+                    message: util.format("File already found in destination"),
+                    execTime: null
+                })
+            } else {
+                var destSubPath = getSubPath(file);
+                var destPath = path.join(options.destDir, destSubPath, file.name);
+
+                if(!options.safeMode) {
+                    
+                    stats.logEvent({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        result: 'fileCopied',
+                        data: {
+                            originalFile: file,
+                            destination: destPath
+                        },
+                        message: util.format("File copied from %s to %s", file._id),
+                        execTime: null
+                    })
+                }
+
+                logger.silly("[%s] - File copied to [%s]", file._id, destPath);
+            }
+
+        })
+
+}
+
+var getSubPath = function(file) {
+    var dateCreated = file.dateCreated;
+    var year = dateCreated.getFullYear().toString();
+    var month = ("0" + (dateCreated.getMonth() + 1)).slice(-2) + ' - ' + dateCreated.toLocaleString(locale, { month: "long" });
+
+    return path.join(year, month);
+}
+
+
+var scanOneDriveForDuplicates = function() {
 
 }
 
@@ -97,16 +170,33 @@ var tasks2 = [
 
 var tasks = [
     {
-        "folder"  :   "M:\\Videos\\Aylmer Express\\To Be Transcoded",
-        "action"  :   hockeyVideos
+        "action"  :   hockeyVideos,
+        "options" : {
+            "folder" : "M:\\Videos\\Aylmer Express\\To Be Transcoded"
+        }
     }, /*{
-        "folder"  :   "M:\\Temp Photo Landing Zone",
-        "action"  :   transferToOneDrive
+        "action"  :   copyPhotosToOneDrive,
+        "options" : {
+            "folder"    :  "M:\\Temp Photo Landing Zone",
+            "destDir"   :  "M:\\OneDrive\\Photos",
+            "safeMode"  :   true    // Don't actually copy files
+        }
     }*/
 ]
 
-tasks.forEach((task) => {
-    task.action(task.folder)
+var testSet1 = [
+    {
+        "action"  :   copyPhotosToOneDrive,
+        "options" : {
+            "folder"    :  "E:\\TestSrc",
+            "destDir"   :  "E:\\TestDest",
+            "safeMode"  :   true    // Don't actually copy files
+        }
+    }
+]
+
+testSet1.forEach((task) => {
+    task.action(task.options)
         .then(() => {
             var logText = fs.readFileSync(logFile);
             //email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Script finished running', logText, logText);

@@ -2,41 +2,52 @@ require('./constants.js');
 var fs = require('fs');
 var Promise = require("bluebird");
 var _ = require('underscore');
-var recursive = require('./scanner.js');
+var Recursive = require('./scanner.js');
 var stats = require('./stats.js');
-var dataLayer = require('./dataLayer.js');  
 const path = require('path');
 const util = require('util');
 const convertHrtime = require('convert-hrtime');
 const logger = require('winston');
 
 Promise.promisifyAll(fs);
-Promise.promisifyAll(recursive);
 
-var fileIndexer = {
-    buildIndex: buildIndex
+var FileIndexer = function() {
+    return {
+        buildIndex: buildIndex
+    }
 }
 
 function buildIndex (baseDir) {
-    dataLayer.getFiles();
     return new Promise(function(resolve, reject) {
-        recursive(baseDir, function (err, files) {
+        var recursive = new Recursive(baseDir);
+        recursive.readdir(baseDir, function (err, collection) {
         // Files is an array of filename
-            resolve(files);
+            resolve(collection);
         });
     });
 }
 
 
 
-module.exports = fileIndexer;
-
+module.exports = FileIndexer;
+/*
 // Test functions
-
-fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
+fileIndexer1 = new FileIndexer();
+fileIndexer2 = new FileIndexer();
+//fileIndexer.buildIndex('\\\\Mediabox\\m\\OneDrive\\Pictures')
+//fileIndexer.buildIndex('M:\\OneDrive\\Pictures')
 //fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
-//fileIndexer.buildIndex('E:\\TestDest')
-  .then(() =>  {
-      console.log("Number of Files: " + dataLayer.numberOfFiles());
+//fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Hospital-prints')
+fileIndexer1.buildIndex('E:\\TestSrc')
+  .then((dataset) =>  {
+      console.log("Number of Files: " + dataset.numberOfFiles());
+    });
+
+//fileIndexer.buildIndex('M:\\OneDrive\\Pictures')
+//fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
+fileIndexer2.buildIndex('E:\\TestDest')
+  .then((data) =>  {
+      console.log("Number of Files: " + data.numberOfFiles());
     });
 //fileIndexer.buildIndex('E:\\tmp');
+*/

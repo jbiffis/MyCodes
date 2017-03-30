@@ -1,7 +1,85 @@
 var fs = require('fs')
 var p = require('path')
-var dataLayer = require('./dataLayer.js');
-var minimatch = require('minimatch')
+var DataCollection = require('./dataLayer.js');
+var minimatch = require('minimatch');
+var ExifImage = require('exif').ExifImage;
+var moment = require('moment');
+moment().format();
+
+var Recursive = function() {
+
+  return {
+    list: [],
+    collection: new DataCollection(),
+    readdir: function(path, callback) {
+      var self = this;
+
+      /*var ignores;
+      if (typeof ignores == 'function') {
+        callback = ignores
+        ignores = []
+      }
+      ignores = ignores.map(toMatcherFunction)*/
+
+      var list = [];
+
+      fs.readdir(path, function(err, files) {
+        if (err) {
+          return callback(err)
+        }
+
+        var pending = files.length
+        if (!pending) {
+          // we are done, woop woop
+          return callback(null, self.collection)
+        }
+
+        files.forEach(function(file) {
+          var filePath = p.join(path, file)
+          fs.stat(filePath, function(_err, stats) {
+            if (_err) {
+              return callback(_err)
+            }
+
+            /*if (ignores.some(function(matcher) { return matcher(filePath, stats) })) {
+              pending -= 1
+              if (!pending) {
+                return callback(null, collection)
+              }
+              return null
+            }*/
+
+            if (stats.isDirectory()) {
+              self.readdir(filePath, /*ignores,*/ function(__err, res) {
+                if (__err) {
+                  return callback(__err)
+                }
+
+                list = list.concat(res)
+                pending -= 1
+                if (!pending) {
+                  return callback(null, self.collection)
+                }
+              })
+            } else {
+              var file = new File(filePath, stats);
+              file.getDateCreated().then((file) => {
+                  self.collection.addFile(file)
+                  pending -= 1
+                  if (!pending) {
+                    return callback(null, self.collection)
+                  }
+                })
+                .catch((error) => {
+                    console.log('test');
+                });          
+            }
+          })
+        })
+      })
+    }
+  }
+}
 
 function patternMatcher(pattern) {
   return function(path, stats) {
@@ -18,80 +96,62 @@ function toMatcherFunction(ignoreEntry) {
   }
 }
 
-function newFile(filepath, stats) {
+function File(filepath, stats) {
 
   var filename = filepath.substring(filepath.lastIndexOf('\\') + 1);
-
   var file = {
-    _id:      filepath,
-    name:     filename,
-    size:     stats.size,
-    created:  stats.ctime,
-    accessed: stats.atime,
-    modified: stats.mtime
-  }
-
-  return file;
+        _id:          filepath,
+        name:         filename,
+        size:         stats.size,
+        created:      stats.ctime,
+        accessed:     stats.atime,
+        modified:     stats.mtime,
+        getDateCreated:  getDateCreated
+      }
+    
+    return file;
 }
 
-function readdir(path, ignores, callback) {
-  if (typeof ignores == 'function') {
-    callback = ignores
-    ignores = []
-  }
-  ignores = ignores.map(toMatcherFunction)
+var getDateCreated = function() {
+    var file = this;
 
-  var list = []
+    return new Promise(function(resolve, reject) {
+      fileType = getFileType(file._id);
 
-  fs.readdir(path, function(err, files) {
-    if (err) {
-      return callback(err)
-    }
-
-    var pending = files.length
-    if (!pending) {
-      // we are done, woop woop
-      return callback(null, list)
-    }
-
-    files.forEach(function(file) {
-      var filePath = p.join(path, file)
-      fs.stat(filePath, function(_err, stats) {
-        if (_err) {
-          return callback(_err)
-        }
-
-        if (ignores.some(function(matcher) { return matcher(filePath, stats) })) {
-          pending -= 1
-          if (!pending) {
-            return callback(null, list)
+      if (['mov', 'avi', 'mp4', 'mkv', 'wmv'].indexOf(fileType) >= 0) {
+          file.dateCreated = file.modifed;
+          resolve(file);
+      } else {
+          try {
+            new ExifImage({ image : file._id }, function (error, exifData) {
+                if (error) {
+                    file.dateCreated = file.modifed;
+                   resolve(file);                 
+                } else if (exifData && exifData.exif) {
+                      ctime = new Date(exifData.exif.DateTimeOriginal);
+                      var momentDate = moment(exifData.exif.DateTimeOriginal, 'YYYY-MM-DD HH:mm:ss')
+                      file.dateCreated = momentDate.toDate();
+                      resolve(file);
+                } else {
+                   file.dateCreated = file.modifed;
+                    resolve(file);
+                }
+              });
+          } catch (error) {
+              file.dateCreated = file.modifed;
+              resolve(file);
           }
-          return null
-        }
-
-        if (stats.isDirectory()) {
-          readdir(filePath, ignores, function(__err, res) {
-            if (__err) {
-              return callback(__err)
-            }
-
-            list = list.concat(res)
-            pending -= 1
-            if (!pending) {
-              return callback(null, list)
-            }
-          })
-        } else {
-          dataLayer.addFile(newFile(filePath, stats));
-          pending -= 1
-          if (!pending) {
-            return callback(null, list)
-          }
-        }
-
-      })
+      }
     })
-  })
+
+    
+
 }
 
-module.exports = readdir
+var getFileType = function(filename) {
+    var fileType = filename.split('.');
+    fileType = fileType[fileType.length-1].toLocaleLowerCase();
+    return fileType;
+}
+
+module.exports = Recursive
