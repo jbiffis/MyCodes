@@ -31,7 +31,7 @@ var Recursive = function() {
           // we are done, woop woop
           return callback(null, self.collection)
         }
-console.log("pending files: " + pending);
+        
         files.forEach(function(file) {
           var filePath = p.join(path, file)
           fs.stat(filePath, function(_err, stats) {
