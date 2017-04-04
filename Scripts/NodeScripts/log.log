@@ -1,0 +1,72 @@
+{"level":"silly","message":"Source Files: 35, Destination Files: 26","timestamp":"2017-03-31T19:54:08.374Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1209.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1209.JPG]","timestamp":"2017-03-31T19:54:08.387Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1213.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1213.JPG]","timestamp":"2017-03-31T19:54:08.389Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1215.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1215.JPG]","timestamp":"2017-03-31T19:54:08.390Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1218.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1218.JPG]","timestamp":"2017-03-31T19:54:08.392Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1247.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1247.JPG]","timestamp":"2017-03-31T19:54:08.394Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1219.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1219.JPG]","timestamp":"2017-03-31T19:54:08.397Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1220.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1220.JPG]","timestamp":"2017-03-31T19:54:08.398Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1223.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1223.JPG]","timestamp":"2017-03-31T19:54:08.399Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1256.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1256.JPG]","timestamp":"2017-03-31T19:54:08.400Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1248.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1248.JPG]","timestamp":"2017-03-31T19:54:08.402Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1259.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1259.JPG]","timestamp":"2017-03-31T19:54:08.403Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1253.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1253.JPG]","timestamp":"2017-03-31T19:54:08.405Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1263.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:08.405Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1261.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:08.406Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1262.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:08.407Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1267.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1267.JPG]","timestamp":"2017-03-31T19:54:08.408Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1260.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:08.408Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1268.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1268.JPG]","timestamp":"2017-03-31T19:54:08.410Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1269.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1269.JPG]","timestamp":"2017-03-31T19:54:08.411Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1270.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1270.JPG]","timestamp":"2017-03-31T19:54:08.416Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1272.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1272.JPG]","timestamp":"2017-03-31T19:54:08.418Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1271.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1271.JPG]","timestamp":"2017-03-31T19:54:08.422Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1276.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1276.JPG]","timestamp":"2017-03-31T19:54:08.425Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1277.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1277.JPG]","timestamp":"2017-03-31T19:54:08.430Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_2161.JPG] - File copied to [E:\\TestDest\\NaN\\aN - Invalid Date\\IMG_2161.JPG]","timestamp":"2017-03-31T19:54:08.433Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_20150718_201448085_HDR.jpg] - File copied to [E:\\TestDest\\2015\\07 - July\\IMG_20150718_201448085_HDR.jpg]","timestamp":"2017-03-31T19:54:08.438Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1281.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1281.JPG]","timestamp":"2017-03-31T19:54:08.441Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1226.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1226.JPG]","timestamp":"2017-03-31T19:54:08.445Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1238.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1238.JPG]","timestamp":"2017-03-31T19:54:08.450Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1227.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1227.JPG]","timestamp":"2017-03-31T19:54:08.455Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1234.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1234.JPG]","timestamp":"2017-03-31T19:54:08.458Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1240.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1240.JPG]","timestamp":"2017-03-31T19:54:08.463Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1241.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1241.JPG]","timestamp":"2017-03-31T19:54:08.469Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1245.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1245.JPG]","timestamp":"2017-03-31T19:54:08.473Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1246.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1246.JPG]","timestamp":"2017-03-31T19:54:08.477Z"}
+{"level":"silly","message":"Source Files: 35, Destination Files: 26","timestamp":"2017-03-31T19:54:14.364Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1209.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1209.JPG]","timestamp":"2017-03-31T19:54:14.380Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1213.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1213.JPG]","timestamp":"2017-03-31T19:54:14.385Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1218.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1218.JPG]","timestamp":"2017-03-31T19:54:14.391Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1215.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1215.JPG]","timestamp":"2017-03-31T19:54:14.395Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1219.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1219.JPG]","timestamp":"2017-03-31T19:54:14.406Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1220.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1220.JPG]","timestamp":"2017-03-31T19:54:14.412Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1247.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1247.JPG]","timestamp":"2017-03-31T19:54:14.416Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1248.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1248.JPG]","timestamp":"2017-03-31T19:54:14.419Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1223.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1223.JPG]","timestamp":"2017-03-31T19:54:14.423Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1253.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1253.JPG]","timestamp":"2017-03-31T19:54:14.429Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1256.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1256.JPG]","timestamp":"2017-03-31T19:54:14.437Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1260.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:14.438Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1261.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:14.444Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1259.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1259.JPG]","timestamp":"2017-03-31T19:54:14.449Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1262.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:14.450Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1263.JPG] - File already in destination 1 times","timestamp":"2017-03-31T19:54:14.453Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1268.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1268.JPG]","timestamp":"2017-03-31T19:54:14.458Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1267.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1267.JPG]","timestamp":"2017-03-31T19:54:14.465Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1269.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1269.JPG]","timestamp":"2017-03-31T19:54:14.470Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1270.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1270.JPG]","timestamp":"2017-03-31T19:54:14.477Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1271.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1271.JPG]","timestamp":"2017-03-31T19:54:14.481Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1277.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1277.JPG]","timestamp":"2017-03-31T19:54:14.484Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1272.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1272.JPG]","timestamp":"2017-03-31T19:54:14.488Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1281.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1281.JPG]","timestamp":"2017-03-31T19:54:14.495Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_2161.JPG] - File copied to [E:\\TestDest\\NaN\\aN - Invalid Date\\IMG_2161.JPG]","timestamp":"2017-03-31T19:54:14.498Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_1276.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1276.JPG]","timestamp":"2017-03-31T19:54:14.502Z"}
+{"level":"silly","message":"[E:\\TestSrc\\IMG_20150718_201448085_HDR.jpg] - File copied to [E:\\TestDest\\2015\\07 - July\\IMG_20150718_201448085_HDR.jpg]","timestamp":"2017-03-31T19:54:14.505Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1226.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1226.JPG]","timestamp":"2017-03-31T19:54:14.511Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1238.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1238.JPG]","timestamp":"2017-03-31T19:54:14.515Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1234.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1234.JPG]","timestamp":"2017-03-31T19:54:14.518Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1240.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1240.JPG]","timestamp":"2017-03-31T19:54:14.521Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1241.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1241.JPG]","timestamp":"2017-03-31T19:54:14.525Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1227.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1227.JPG]","timestamp":"2017-03-31T19:54:14.531Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1246.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1246.JPG]","timestamp":"2017-03-31T19:54:14.535Z"}
+{"level":"silly","message":"[E:\\TestSrc\\Another folder\\IMG_1245.JPG] - File copied to [E:\\TestDest\\2017\\02 - February\\IMG_1245.JPG]","timestamp":"2017-03-31T19:54:14.537Z"}

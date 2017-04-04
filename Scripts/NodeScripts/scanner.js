@@ -3,8 +3,6 @@ var p = require('path')
 var DataCollection = require('./dataLayer.js');
 var minimatch = require('minimatch');
 var ExifImage = require('exif').ExifImage;
-var moment = require('moment');
-moment().format();
 
 var Recursive = function() {
 
@@ -63,7 +61,7 @@ var Recursive = function() {
               })
             } else {
               var file = new File(filePath, stats);
-              file.getDateCreated().then((file) => {
+              file.addExifData().then((file) => {
                   self.collection.addFile(file)
                   pending -= 1
                   if (!pending) {
@@ -106,52 +104,33 @@ function File(filepath, stats) {
         created:      stats.ctime,
         accessed:     stats.atime,
         modified:     stats.mtime,
-        getDateCreated:  getDateCreated
+        addExifData:  addExifData
       }
     
     return file;
 }
 
-var getDateCreated = function() {
+var addExifData = function() {
     var file = this;
 
     return new Promise(function(resolve, reject) {
-      fileType = getFileType(file._id);
-
-      if (['mov', 'avi', 'mp4', 'mkv', 'wmv'].indexOf(fileType) >= 0) {
-          file.dateCreated = file.modifed;
+      try {
+        new ExifImage({ image : file._id }, function (error, exifData) {
+            if (error) {
+                resolve(file);                 
+            } else if (exifData && exifData.exif) {
+                  exifData.exif && exifData.exif.MakerNote && (exifData.exif.MakerNote = {});
+                  exifData.exif && exifData.exif.UserComment && (exifData.exif.UserComment = {});
+                  file.exifData = exifData;
+                  resolve(file);
+            } else {
+                resolve(file);
+            }
+          });
+      } catch (error) {
           resolve(file);
-      } else {
-          try {
-            new ExifImage({ image : file._id }, function (error, exifData) {
-                if (error) {
-                    file.dateCreated = file.modifed;
-                   resolve(file);                 
-                } else if (exifData && exifData.exif) {
-                      ctime = new Date(exifData.exif.DateTimeOriginal);
-                      var momentDate = moment(exifData.exif.DateTimeOriginal, 'YYYY-MM-DD HH:mm:ss')
-                      file.dateCreated = momentDate.toDate();
-                      resolve(file);
-                } else {
-                   file.dateCreated = file.modifed;
-                    resolve(file);
-                }
-              });
-          } catch (error) {
-              file.dateCreated = file.modifed;
-              resolve(file);
-          }
       }
-    })
-
-    
-
-}
-
-var getFileType = function(filename) {
-    var fileType = filename.split('.');
-    fileType = fileType[fileType.length-1].toLocaleLowerCase();
-    return fileType;
+    });
 }
 
 module.exports = Recursive

@@ -1,10 +1,11 @@
 require('./constants.js');
-var fs = require('fs');
+var fs = require('fs-extra');
 var Promise = require("bluebird");
 var _ = require('underscore');
 var transcoder = require('./transcoder.js');
 //var email = require('./mailer.js');
 var stats = require('./stats.js');
+var fileUtils = require('./fileUtils.js');
 var FileIndexer = require('./fileIndex.js');
 const path = require('path');
 const util = require('util');
@@ -97,46 +98,57 @@ var copyPhotosToOneDrive = function(options) {
             sourceFiles = result[0];
             destFiles = result[1];
 
+            fs.writeFileSync('./data.json', JSON.stringify(sourceFiles.getFiles()) , 'utf-8', '\t'); 
+
             logger.silly("Source Files: %s, Destination Files: %s", sourceFiles.numberOfFiles(), destFiles.numberOfFiles());
 
             return sourceFiles.getFiles();
         })
-        .each((file) => {
-            // does it exist in Destination
-            
+        .each((file) => {            
             var matchingFiles = destFiles.findAllWhere({name: file.name});
 
             if (matchingFiles.length  > 0) {
                 logger.silly("[%s] - File already in destination %d times", file._id, matchingFiles.length);
 
-                stats.logEvent({
-                    module: MODULES.PHOTO_COPY,
-                    operation: 'copyPhotosToOneDrive',
-                    result: 'duplicateFile',
-                    data: {
-                        originalFile: file,
-                        matchingFiles: matchingFiles
-                    },
-                    message: util.format("File already found in destination"),
-                    execTime: null
-                })
+                if (!options.safeMode) {
+                    var recyclePath = path.join(options.recycleBin, file.name);
+                    fs.renameAsync(file._id, recyclePath)
+                        .then(() => {
+                            stats.logEvent({
+                                module: MODULES.PHOTO_COPY,
+                                operation: 'copyPhotosToOneDrive',
+                                result: 'duplicateFile',
+                                data: {
+                                    originalFile: file,
+                                    matchingFiles: matchingFiles
+                                },
+                                message: util.format("File already found in destination"),
+                                execTime: null
+                            })
+                        });
+                }                
             } else {
                 var destSubPath = getSubPath(file);
                 var destPath = path.join(options.destDir, destSubPath, file.name);
 
                 if(!options.safeMode) {
-                    
-                    stats.logEvent({
-                        module: MODULES.PHOTO_COPY,
-                        operation: 'copyPhotosToOneDrive',
-                        result: 'fileCopied',
-                        data: {
-                            originalFile: file,
-                            destination: destPath
-                        },
-                        message: util.format("File copied from %s to %s", file._id),
-                        execTime: null
-                    })
+                    fs.copyAsync(file._id, destPath, {preserveTimestamps: true})
+                        .then(() => {
+                            stats.logEvent({
+                                module: MODULES.PHOTO_COPY,
+                                operation: 'copyPhotosToOneDrive',
+                                result: 'fileCopied',
+                                data: {
+                                    originalFile: file,
+                                    destination: destPath
+                                },
+                                message: util.format("File copied from %s to %s", file._id),
+                                execTime: null
+                            })
+                        })
+                        .catch((err) => {
+                            console.log(err);
+                        });                  
                 }
 
                 logger.silly("[%s] - File copied to [%s]", file._id, destPath);
@@ -147,11 +159,14 @@ var copyPhotosToOneDrive = function(options) {
 }
 
 var getSubPath = function(file) {
-    var dateCreated = file.dateCreated;
+    var dateCreated = fileUtils.getDateCreated(file);
+    
+    if (dateCreated === null) return "undated";
+
     var year = dateCreated.getFullYear().toString();
     var month = ("0" + (dateCreated.getMonth() + 1)).slice(-2) + ' - ' + dateCreated.toLocaleString(locale, { month: "long" });
 
-    return path.join(year, month);
+    return path.join(year, month); 
 }
 
 
@@ -168,28 +183,30 @@ var tasks2 = [
     }
 ]
 
-var tasks = [
+var liveSet = [
     {
         "action"  :   hockeyVideos,
         "options" : {
             "folder" : "M:\\Videos\\Aylmer Express\\To Be Transcoded"
         }
-    }, /*{
+    }, {
         "action"  :   copyPhotosToOneDrive,
         "options" : {
             "folder"    :  "M:\\Temp Photo Landing Zone",
             "destDir"   :  "M:\\OneDrive\\Photos",
             "safeMode"  :   true    // Don't actually copy files
         }
-    }*/
+    }
 ]
 
 var testSet1 = [
     {
         "action"  :   copyPhotosToOneDrive,
         "options" : {
-            "folder"    :  "E:\\TestSrc",
-            "destDir"   :  "E:\\TestDest",
+            "folder"    :  "E:\\TestSrc\\DifferentTypes",
+            //"folder"    :  "E:\\TestSrc",
+            "destDir"   :  "E:\\TestDest\\Photos",
+            "recycleBin":   "E:\\RecycleBin",
             "safeMode"  :   true    // Don't actually copy files
         }
     }

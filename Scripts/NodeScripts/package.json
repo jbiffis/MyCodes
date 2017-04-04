@@ -16,6 +16,7 @@
     "convert-hrtime": "^1.0.0",
     "exif": "^0.6.0",
     "fluent-ffmpeg": "^2.1.0",
+    "fs-extra": "^2.1.2",
     "moment": "^2.17.1",
     "nodemailer": "^3.1.4",
     "recursive-readdir": "^2.1.1",
