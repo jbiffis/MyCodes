@@ -98,7 +98,7 @@ var copyPhotosToOneDrive = function(options) {
             sourceFiles = result[0];
             destFiles = result[1];
 
-            fs.writeFileSync('./data.json', JSON.stringify(sourceFiles.getFiles()) , 'utf-8', '\t'); 
+            //fs.writeFileSync('./data.json', JSON.stringify(sourceFiles.getFiles()) , 'utf-8', '\t'); 
 
             logger.silly("Source Files: %s, Destination Files: %s", sourceFiles.numberOfFiles(), destFiles.numberOfFiles());
 
@@ -184,12 +184,12 @@ var tasks2 = [
 ]
 
 var liveSet = [
-    {
+    /*{
         "action"  :   hockeyVideos,
         "options" : {
             "folder" : "M:\\Videos\\Aylmer Express\\To Be Transcoded"
         }
-    }, {
+    },*/ {
         "action"  :   copyPhotosToOneDrive,
         "options" : {
             "folder"    :  "M:\\Temp Photo Landing Zone",
@@ -212,7 +212,7 @@ var testSet1 = [
     }
 ]
 
-testSet1.forEach((task) => {
+liveSet.forEach((task) => {
     task.action(task.options)
         .then(() => {
             var logText = fs.readFileSync(logFile);

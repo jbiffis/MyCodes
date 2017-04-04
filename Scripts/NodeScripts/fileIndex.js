@@ -1,15 +1,8 @@
 require('./constants.js');
-var fs = require('fs');
 var Promise = require("bluebird");
-var _ = require('underscore');
 var Recursive = require('./scanner.js');
-var stats = require('./stats.js');
-const path = require('path');
-const util = require('util');
-const convertHrtime = require('convert-hrtime');
 const logger = require('winston');
 
-Promise.promisifyAll(fs);
 
 var FileIndexer = function() {
     return {
@@ -24,25 +17,33 @@ function buildIndex (baseDir) {
         // Files is an array of filename
             resolve(collection);
         });
+    })
+    .then(data => {
+      return new Promise.map(data.getFiles(), function (file) {
+          return file.addExifData();
+        }, {concurrency: 3})
+        .then(() => {
+            return data;
+        });
     });
 }
 
 
 
 module.exports = FileIndexer;
-/*
+
 // Test functions
 fileIndexer1 = new FileIndexer();
 fileIndexer2 = new FileIndexer();
 //fileIndexer.buildIndex('\\\\Mediabox\\m\\OneDrive\\Pictures')
-//fileIndexer.buildIndex('M:\\OneDrive\\Pictures')
-//fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
+//fileIndexer1.buildIndex('M:\\OneDrive\\Pictures')
+//fileIndexer1.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Hospital-prints')
 fileIndexer1.buildIndex('E:\\TestSrc')
   .then((dataset) =>  {
       console.log("Number of Files: " + dataset.numberOfFiles());
     });
-
+/*
 //fileIndexer.buildIndex('M:\\OneDrive\\Pictures')
 //fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
 fileIndexer2.buildIndex('E:\\TestDest')

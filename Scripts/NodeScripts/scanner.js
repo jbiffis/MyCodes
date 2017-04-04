@@ -31,7 +31,7 @@ var Recursive = function() {
           // we are done, woop woop
           return callback(null, self.collection)
         }
-
+console.log("pending files: " + pending);
         files.forEach(function(file) {
           var filePath = p.join(path, file)
           fs.stat(filePath, function(_err, stats) {
@@ -61,16 +61,20 @@ var Recursive = function() {
               })
             } else {
               var file = new File(filePath, stats);
-              file.addExifData().then((file) => {
+              self.collection.addFile(file);
+
+              pending -= 1
+              if (!pending) {
+                return callback(null, self.collection)
+              }
+              /*file.addExifData().then((file) => {
                   self.collection.addFile(file)
-                  pending -= 1
-                  if (!pending) {
-                    return callback(null, self.collection)
-                  }
+                  
                 })
                 .catch((error) => {
                     console.log('test');
-                });          
+                });   
+                */       
             }
           })
         })
