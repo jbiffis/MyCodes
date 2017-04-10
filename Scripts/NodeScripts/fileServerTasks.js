@@ -93,75 +93,117 @@ var copyPhotosToOneDrive = function(options) {
     var source = new FileIndexer();
     var dest = new FileIndexer();
 
-    return new Promise.join(source.buildIndex(options.folder), dest.buildIndex(options.destDir))
+    return new Promise.join(source.buildIndex(options.folder, false), dest.buildIndex(options.destDir, false))
         .then((result) => {
             sourceFiles = result[0];
             destFiles = result[1];
-
-            //fs.writeFileSync('./data.json', JSON.stringify(sourceFiles.getFiles()) , 'utf-8', '\t'); 
 
             logger.silly("Source Files: %s, Destination Files: %s", sourceFiles.numberOfFiles(), destFiles.numberOfFiles());
 
             return sourceFiles.getFiles();
         })
-        .each((file) => {            
+        .each((file) => {           
             var matchingFiles = destFiles.findAllWhere({name: file.name});
 
-            if (matchingFiles.length  > 0) {
+            if (matchingFiles.length > 0) {
+                stats.logEvent({
+                    module: MODULES.PHOTO_COPY,
+                    operation: 'copyPhotosToOneDrive',
+                    event: EVENTS.DUPLICATE_FILE,
+                    data: {
+                        originalFile: file,
+                        matchedFiles: matchingFiles
+                    },
+                    message: util.format("File [%s] already exists in destination", file._id),
+                    execTime: null
+                })
                 logger.silly("[%s] - File already in destination %d times", file._id, matchingFiles.length);
-
-                if (!options.safeMode) {
-                    var recyclePath = path.join(options.recycleBin, file.name);
-                    fs.renameAsync(file._id, recyclePath)
-                        .then(() => {
-                            stats.logEvent({
-                                module: MODULES.PHOTO_COPY,
-                                operation: 'copyPhotosToOneDrive',
-                                result: 'duplicateFile',
-                                data: {
-                                    originalFile: file,
-                                    matchingFiles: matchingFiles
-                                },
-                                message: util.format("File already found in destination"),
-                                execTime: null
-                            })
-                        });
-                }                
+                
+                return moveToRecycleBin(file, options)
             } else {
-                var destSubPath = getSubPath(file);
-                var destPath = path.join(options.destDir, destSubPath, file.name);
+                return file.addExifData()
+                    .then(file => {
+                        var destSubPath = getSubPath(file);
+                        var destPath = path.join(options.destDir, destSubPath, file.name);
 
-                if(!options.safeMode) {
-                    fs.copyAsync(file._id, destPath, {preserveTimestamps: true})
-                        .then(() => {
-                            stats.logEvent({
-                                module: MODULES.PHOTO_COPY,
-                                operation: 'copyPhotosToOneDrive',
-                                result: 'fileCopied',
-                                data: {
-                                    originalFile: file,
-                                    destination: destPath
-                                },
-                                message: util.format("File copied from %s to %s", file._id),
-                                execTime: null
-                            })
+                        logger.silly("[%s] - File copying to [%s]", file._id, destPath);
+
+                        if(options.safeMode) {
+                            throw new Error("Safe Mode enabled");
+                        }
+
+                        // TODO: Eventually this should be a move.
+                        return fs.copyAsync(file._id, destPath, {preserveTimestamps: true})
+                    })
+                    .then(() => {
+                        destFiles.addFile(file);
+
+                        stats.logEvent({
+                            module: MODULES.PHOTO_COPY,
+                            operation: 'copyPhotosToOneDrive',
+                            result: EVENTS.FILE_COPIED_TO_ONEDRIVE,
+                            data: {
+                                originalFile: file,
+                                destination: destPath
+                            },
+                            message: util.format("File copied from %s to %s", file._id),
+                            execTime: null
                         })
-                        .catch((err) => {
-                            console.log(err);
-                        });                  
-                }
-
-                logger.silly("[%s] - File copied to [%s]", file._id, destPath);
+                    })
+                    .catch((err) => {
+                        //console.log(err);
+                    });
             }
 
         })
+        .each(file => {
+            var matchingFiles = destFiles.findAllWhere({name: file.name});
 
+            if (matchingFiles.length > 0) {
+                return moveToRecycleBin(file, options);
+            } else {
+                logger.silly("[%s] - File wasn't copied over", file._id);
+            }
+        });
+}
+
+var moveToRecycleBin = function(file, options) {
+    if (options.safeMode) {
+        return false;
+    }
+
+    var recyclePath = path.join(options.recycleBin, file.name);
+
+    return fs.renameAsync(file._id, recyclePath)
+        .then(() => {
+            stats.logEvent({
+                module: MODULES.PHOTO_COPY,
+                operation: 'copyPhotosToOneDrive',
+                result: EVENTS.FILE_RECYCLED,
+                data: {
+                    originalFile: file
+                },
+                message: util.format("File moved to Recyling Bin"),
+                execTime: null
+            })
+        });
 }
 
 var getSubPath = function(file) {
     var dateCreated = fileUtils.getDateCreated(file);
     
-    if (dateCreated === null) return "undated";
+    if (dateCreated === null) {
+        stats.logEvent({
+            module: MODULES.PHOTO_COPY,
+            operation: 'copyPhotosToOneDrive',
+            event: EVENTS.UNKNOWN_DATE,
+            data: {
+                originalFile: file
+            },
+            message: util.format("Could not figure out date for file: [%s]", file._id)
+        });
+        return "undated";
+    }
 
     var year = dateCreated.getFullYear().toString();
     var month = ("0" + (dateCreated.getMonth() + 1)).slice(-2) + ' - ' + dateCreated.toLocaleString(locale, { month: "long" });
@@ -193,7 +235,7 @@ var liveSet = [
         "action"  :   copyPhotosToOneDrive,
         "options" : {
             "folder"    :  "M:\\Temp Photo Landing Zone",
-            "destDir"   :  "M:\\OneDrive\\Photos",
+            "destDir"   :  "M:\\OneDrive\\Pictures",
             "safeMode"  :   true    // Don't actually copy files
         }
     }
@@ -212,9 +254,10 @@ var testSet1 = [
     }
 ]
 
-liveSet.forEach((task) => {
+testSet1.forEach((task) => {
     task.action(task.options)
         .then(() => {
+            logger.debug("Done");
             var logText = fs.readFileSync(logFile);
             //email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Script finished running', logText, logText);
         });

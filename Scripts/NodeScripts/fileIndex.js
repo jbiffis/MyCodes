@@ -2,6 +2,7 @@ require('./constants.js');
 var Promise = require("bluebird");
 var Recursive = require('./scanner.js');
 var async = require('async');
+var fs = require('fs-extra');
 var timer = require('perfy');
 const logger = require('winston');
 logger.level = 'silly';
@@ -12,8 +13,13 @@ var FileIndexer = function() {
     }
 }
 
-function buildIndex (baseDir) {
+function buildIndex (baseDir, fullScan) {
     return new Promise(function(resolve, reject) {
+        if (!fs.existsSync(baseDir)) {
+            logger.error("Folder [%s] does not exist motherfucker", baseDir);
+            reject("Folder not found");
+        }
+
         var recursive = new Recursive(baseDir);
         recursive.readdir(baseDir, function (err, collection) {
         // Files is an array of filename
@@ -21,6 +27,10 @@ function buildIndex (baseDir) {
         });
     })
     .then(data => {
+        if (!fullScan) {
+            return data;
+        }
+        
         var tasks = [];
 
         timer.start('Pull EXIF Data');
@@ -36,11 +46,12 @@ function buildIndex (baseDir) {
                 });
             });
 
-            async.parallelLimit(tasks, 50, function(err, result) {
+            async.parallelLimit(tasks, 10, function(err, result) {
                 var totalTime = timer.end('Pull EXIF Data');
                 logger.debug("It took %ss to pull the EXIF data for %d files", totalTime.time, filesArr.length);
 
                 if (err) {
+                    console.log("rejecting");
                     reject(err);
                 }
                 resolve(data);
@@ -55,12 +66,12 @@ function buildIndex (baseDir) {
 
 
 module.exports = FileIndexer;
-
+/*
 // Test functions
 fileIndexer1 = new FileIndexer();
 fileIndexer2 = new FileIndexer();
-//fileIndexer1.buildIndex('\\\\Mediabox\\m\\OneDrive\\Pictures\\Photos\\2011')
-fileIndexer1.buildIndex('M:\\OneDrive\\Pictures\\photos\\2017')
+//fileIndexer1.buildIndex('\\\\Mediabox\\m\\OneDrive\\Pictures\\Photos\\2017')
+fileIndexer1.buildIndex('M:\\OneDrive\\Pictures\\photos')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Photos\\2012\\trip')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Hospital-prints')
 //fileIndexer1.buildIndex('E:\\TestSrc\\Sub foldder')

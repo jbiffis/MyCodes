@@ -22,4 +22,8 @@ function getSummary(options) {
     return summary;
 }
 
+function getAllEvents(options) {
+    
+}
+
 module.exports = stats;
