@@ -66,15 +66,7 @@ var Recursive = function() {
               pending -= 1
               if (!pending) {
                 return callback(null, self.collection)
-              }
-              /*file.addExifData().then((file) => {
-                  self.collection.addFile(file)
-                  
-                })
-                .catch((error) => {
-                    console.log('test');
-                });   
-                */       
+              }      
             }
           })
         })

@@ -89,6 +89,7 @@ var hockeyVideos = function(options) {
 var copyPhotosToOneDrive = function(options) {
     // scan over the files
     var sourceFiles, destFiles;
+    timer.start('Copy Photos to OneDrive');
 
     var source = new FileIndexer();
     var dest = new FileIndexer();
@@ -98,7 +99,20 @@ var copyPhotosToOneDrive = function(options) {
             sourceFiles = result[0];
             destFiles = result[1];
 
-            logger.silly("Source Files: %s, Destination Files: %s", sourceFiles.numberOfFiles(), destFiles.numberOfFiles());
+            var message = util.format("Source Files: %s, Destination Files: %s", sourceFiles.numberOfFiles(), destFiles.numberOfFiles());
+            
+            stats.logEvent({
+                module: MODULES.PHOTO_COPY,
+                operation: 'copyPhotosToOneDrive',
+                event: EVENTS.COPY_STARTED,
+                data: {
+                    numSourceFiles: sourceFiles.numberOfFiles(),
+                    numDestFiles: destFiles.numberOfFiles()
+                },
+                message: message
+            })
+
+            logger.silly(message);
 
             return sourceFiles.getFiles();
         })
@@ -119,7 +133,7 @@ var copyPhotosToOneDrive = function(options) {
                 })
                 logger.silly("[%s] - File already in destination %d times", file._id, matchingFiles.length);
                 
-                return moveToRecycleBin(file, options)
+                return true;
             } else {
                 return file.addExifData()
                     .then(file => {
@@ -134,25 +148,24 @@ var copyPhotosToOneDrive = function(options) {
 
                         // TODO: Eventually this should be a move.
                         return fs.copyAsync(file._id, destPath, {preserveTimestamps: true})
-                    })
-                    .then(() => {
-                        destFiles.addFile(file);
+                            .then(() => {
+                                destFiles.addFile(file);
 
-                        stats.logEvent({
-                            module: MODULES.PHOTO_COPY,
-                            operation: 'copyPhotosToOneDrive',
-                            result: EVENTS.FILE_COPIED_TO_ONEDRIVE,
-                            data: {
-                                originalFile: file,
-                                destination: destPath
-                            },
-                            message: util.format("File copied from %s to %s", file._id),
-                            execTime: null
-                        })
+                                stats.logEvent({
+                                    module: MODULES.PHOTO_COPY,
+                                    operation: 'copyPhotosToOneDrive',
+                                    event: EVENTS.FILE_COPIED_TO_ONEDRIVE,
+                                    data: {
+                                        originalFile: file,
+                                        destination: destPath
+                                    },
+                                    message: util.format("File copied from %s to %s", file._id)
+                                });
+                            });
                     })
                     .catch((err) => {
                         //console.log(err);
-                    });
+                    })
             }
 
         })
@@ -164,6 +177,20 @@ var copyPhotosToOneDrive = function(options) {
             } else {
                 logger.silly("[%s] - File wasn't copied over", file._id);
             }
+        })
+        .finally(() => {
+            var totalTime = timer.end('Copy Photos to OneDrive');
+            stats.logEvent({
+                module: MODULES.PHOTO_COPY,
+                operation: 'copyPhotosToOneDrive',
+                event: EVENTS.DONE_COPY_TO_ONEDRIVE,
+                status: STATUS_CODES.SUCCESS,
+                data: {
+                    execTime: totalTime,
+                    numDestFiles: destFiles.numberOfFiles()
+                },
+                message: util.format("OndeDrive photo copy is done")
+            })
         });
 }
 
@@ -179,13 +206,24 @@ var moveToRecycleBin = function(file, options) {
             stats.logEvent({
                 module: MODULES.PHOTO_COPY,
                 operation: 'copyPhotosToOneDrive',
-                result: EVENTS.FILE_RECYCLED,
+                event: EVENTS.FILE_RECYCLED,
                 data: {
                     originalFile: file
                 },
-                message: util.format("File moved to Recyling Bin"),
-                execTime: null
+                message: util.format("File moved to Recyling Bin")
             })
+        })
+        .catch(err => {
+            stats.logEvent({
+                module: MODULES.PHOTO_COPY,
+                operation: 'copyPhotosToOneDrive',
+                event: EVENTS.FILE_RECYCLE_FAILED,
+                data: {
+                    originalFile: file
+                },
+                message: util.format("File moved to Recyling Bin")
+            })
+          logger.debug("File failed copy %s to %s", file_id, recyclePath)  ;
         });
 }
 
@@ -217,6 +255,50 @@ var scanOneDriveForDuplicates = function() {
 }
 
 
+var prepareEmail = function(stats)  {
+    var startEvent = stats.searchEvents({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.COPY_STARTED
+                    })[0];
+    var numSourceFiles = startEvent.data.numSourceFiles;
+    var numDestFiles = startEvent.data.numDestFiles;
+    var numDuplicates = stats.searchEvents({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.DUPLICATE_FILE
+                    });
+    var numCopied = stats.searchEvents({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.FILE_COPIED_TO_ONEDRIVE
+                    });
+    var numRecycled = stats.searchEvents({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.FILE_RECYCLED
+                    });
+    var numUndated = stats.searchEvents({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.UNKNOWN_DATE
+                    });
+    var endEvent = stats.searchEvents({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.DONE_COPY_TO_ONEDRIVE
+                    })[0];
+    var totalTime = endEvent.data.execTime.time;
+    var finalNumDestFiles = endEvent.data.numDestFiles;
+
+    var string = "Completed adding new files to onedrive: \n%d Source files, %d files in destination at start, %d files in destination at end. \n%d duplicate files, %d copied to OneDrive, %d moved to Recycling Bin, %d have an Unknown Date \nOperation took %d seconds";
+    var message = util.format(string, numSourceFiles, numDestFiles, finalNumDestFiles, numDuplicates.length, numCopied.length, numRecycled.length, numUndated.length, totalTime);
+    
+    logger.debug(message);
+    return message;
+}
+
+
 var tasks2 = [
     {
         'folder' : "E:\\tmp",
@@ -245,11 +327,11 @@ var testSet1 = [
     {
         "action"  :   copyPhotosToOneDrive,
         "options" : {
-            "folder"    :  "E:\\TestSrc\\DifferentTypes",
+            "folder"    :  "E:\\TestSrc",
             //"folder"    :  "E:\\TestSrc",
             "destDir"   :  "E:\\TestDest\\Photos",
             "recycleBin":   "E:\\RecycleBin",
-            "safeMode"  :   true    // Don't actually copy files
+            "safeMode"  :   false    // Don't actually copy files
         }
     }
 ]
@@ -259,6 +341,7 @@ testSet1.forEach((task) => {
         .then(() => {
             logger.debug("Done");
             var logText = fs.readFileSync(logFile);
+            prepareEmail(stats);
             //email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Script finished running', logText, logText);
         });
 });

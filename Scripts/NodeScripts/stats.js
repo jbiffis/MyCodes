@@ -1,10 +1,12 @@
-
+require('./constants.js');
+var _ = require('underscore');
 
 var stats = {
     events: [],
 
     logEvent: logEvent,
-    getSummary: getSummary
+    getSummary: getSummary,
+    searchEvents: searchEvents
 }
 
 function logEvent(event) {
@@ -23,7 +25,11 @@ function getSummary(options) {
 }
 
 function getAllEvents(options) {
-    
+
+}
+
+function searchEvents(params) {
+    return _.where(this.events, params);
 }
 
 module.exports = stats;
