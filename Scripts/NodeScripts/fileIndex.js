@@ -5,7 +5,6 @@ var async = require('async');
 var fs = require('fs-extra');
 var timer = require('perfy');
 const logger = require('winston');
-logger.level = 'silly';
 
 var FileIndexer = function() {
     return {

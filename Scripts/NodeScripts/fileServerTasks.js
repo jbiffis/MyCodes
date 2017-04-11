@@ -3,7 +3,7 @@ var fs = require('fs-extra');
 var Promise = require("bluebird");
 var _ = require('underscore');
 var transcoder = require('./transcoder.js');
-//var email = require('./mailer.js');
+var email = require('./mailer.js');
 var stats = require('./stats.js');
 var fileUtils = require('./fileUtils.js');
 var FileIndexer = require('./fileIndex.js');
@@ -11,7 +11,7 @@ const path = require('path');
 const util = require('util');
 var timer = require('perfy');
 const logger = require('winston');
-logger.level = 'silly';
+logger.level = 'debug';
 var logFile = 'log.log';
 var locale = "en-us";
 
@@ -190,7 +190,9 @@ var copyPhotosToOneDrive = function(options) {
                     numDestFiles: destFiles.numberOfFiles()
                 },
                 message: util.format("OndeDrive photo copy is done")
-            })
+            });
+
+            // TODO: Save the stats object
         });
 }
 
@@ -223,7 +225,7 @@ var moveToRecycleBin = function(file, options) {
                 },
                 message: util.format("File moved to Recyling Bin")
             })
-          logger.debug("File failed copy %s to %s", file_id, recyclePath)  ;
+          logger.debug("File failed copy %s to %s", file._id, recyclePath)  ;
         });
 }
 
@@ -318,7 +320,8 @@ var liveSet = [
         "options" : {
             "folder"    :  "M:\\Temp Photo Landing Zone",
             "destDir"   :  "M:\\OneDrive\\Pictures",
-            "safeMode"  :   true    // Don't actually copy files
+            "recycleBin":   "M:\\RecycleBin",
+            "safeMode"  :   false    // Don't actually copy files
         }
     }
 ]
@@ -331,17 +334,18 @@ var testSet1 = [
             //"folder"    :  "E:\\TestSrc",
             "destDir"   :  "E:\\TestDest\\Photos",
             "recycleBin":   "E:\\RecycleBin",
-            "safeMode"  :   false    // Don't actually copy files
+            "safeMode"  :   true    // Don't actually copy files
         }
     }
 ]
 
-testSet1.forEach((task) => {
+liveSet.forEach((task) => {
     task.action(task.options)
         .then(() => {
             logger.debug("Done");
             var logText = fs.readFileSync(logFile);
-            prepareEmail(stats);
-            //email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Script finished running', logText, logText);
+            var emailMessage = prepareEmail(stats);
+            email.send('jeremy@biffis.com', 'ottawa@biffis.com', 'Script finished running', emailMessage, emailMessage);
+            process.exit();
         });
 });
