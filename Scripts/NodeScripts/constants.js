@@ -7,7 +7,6 @@ global.STATUS_CODES = {
     READY: 1,
     PROCESSING: 2,
     COMPLETED: 3
-
 }
 
 global.MODULES = {
@@ -27,4 +26,9 @@ global.EVENTS = {
     FILE_TRANSCODED: 'File Transcoded',
     UNKNOWN_DATE: 'Unknown Date',
     DONE_COPY_TO_ONEDRIVE: 'Done Copy to OneDrive'
+}
+
+global.TASK_PROCESSORS = {
+    COPY_TO_ONEDRIVE: 'copyFilesToOneDrive',
+    HOCKEY_VIDEO_TRANSCODE: 'hockeyVideos'
 }
