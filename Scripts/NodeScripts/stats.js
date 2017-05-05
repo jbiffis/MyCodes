@@ -11,8 +11,10 @@ var stats = {
 
 function logEvent(event) {
     event.time = new Date();
+    // TODO: Gather some system data
 
     this.events.push(event);
+    // save to the events json file
 }
 
 function getSummary(options) {

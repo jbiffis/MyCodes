@@ -1,12 +1,13 @@
 require('./constants.js');
 var _ = require('underscore');
-var DataSet = require('./data.js');
+//var DataSet = require('./data.js');
+var DataSet = require('./dataInterfaces/loki.js');
 
 var DataLayer =  function() {
 
 
     return {
-            data: new DataSet(),
+            data: DataSet,
 
             addFile: function(file) {
                 this.data.add(TABLES.FILES, file);

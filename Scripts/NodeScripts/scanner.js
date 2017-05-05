@@ -1,6 +1,5 @@
 var fs = require('fs')
 var p = require('path')
-var DataCollection = require('./dataLayer.js');
 var minimatch = require('minimatch');
 var ExifImage = require('exif').ExifImage;
 

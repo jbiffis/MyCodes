@@ -58,22 +58,25 @@ function buildIndex (baseDir, fullScan) {
         });
     })
     .catch(err => {
-        logger.debug(err);
+        logger.error(err);
     });
 }
 
 
 
 module.exports = FileIndexer;
-/*
+
+fileIndexer1 = new FileIndexer();
+
 // Test functions
 fileIndexer1 = new FileIndexer();
 fileIndexer2 = new FileIndexer();
+logger.level = 'silly';
 //fileIndexer1.buildIndex('\\\\Mediabox\\m\\OneDrive\\Pictures\\Photos\\2017')
-fileIndexer1.buildIndex('M:\\OneDrive\\Pictures\\photos')
+//fileIndexer1.buildIndex('M:\\OneDrive\\Pictures\\photos')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Photos\\2012\\trip')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Hospital-prints')
-//fileIndexer1.buildIndex('E:\\TestSrc\\Sub foldder')
+fileIndexer1.buildIndex('E:\\TestSrc')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Photos\\2011')
   .then((dataset) =>  {
       console.log("Number of Files: " + dataset.numberOfFiles());
