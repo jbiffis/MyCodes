@@ -25,6 +25,7 @@ function buildIndex (baseDir, fullScan) {
             resolve(collection);
         });
     })
+    
     .then(data => {
         if (!fullScan) {
             return data;

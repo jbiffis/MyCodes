@@ -6,8 +6,7 @@ var ExifImage = require('exif').ExifImage;
 var Recursive = function() {
 
   return {
-    list: [],
-    collection: new DataCollection(),
+    files: [],
     readdir: function(path, callback) {
       var self = this;
 
@@ -28,7 +27,7 @@ var Recursive = function() {
         var pending = files.length
         if (!pending) {
           // we are done, woop woop
-          return callback(null, self.collection)
+          return callback(null, self.files)
         }
         
         files.forEach(function(file) {
@@ -41,7 +40,7 @@ var Recursive = function() {
             /*if (ignores.some(function(matcher) { return matcher(filePath, stats) })) {
               pending -= 1
               if (!pending) {
-                return callback(null, collection)
+                return callback(null, files)
               }
               return null
             }*/
@@ -55,16 +54,25 @@ var Recursive = function() {
                 list = list.concat(res)
                 pending -= 1
                 if (!pending) {
-                  return callback(null, self.collection)
+                  return callback(null, self.files)
                 }
               })
             } else {
-              var file = new File(filePath, stats);
-              self.collection.addFile(file);
+              var filename = filePath.substring(filePath.lastIndexOf('\\') + 1);
+              var file = {
+                  path:          filePath,
+                  name:         filename,
+                  size:         stats.size,
+                  created:      stats.ctime,
+                  accessed:     stats.atime,
+                  modified:     stats.mtime
+               }
+
+              self.files.push(file);
 
               pending -= 1
               if (!pending) {
-                return callback(null, self.collection)
+                return callback(null, self.files)
               }      
             }
           })
@@ -91,41 +99,9 @@ function toMatcherFunction(ignoreEntry) {
 
 function File(filepath, stats) {
 
-  var filename = filepath.substring(filepath.lastIndexOf('\\') + 1);
-  var file = {
-        _id:          filepath,
-        name:         filename,
-        size:         stats.size,
-        created:      stats.ctime,
-        accessed:     stats.atime,
-        modified:     stats.mtime,
-        addExifData:  addExifData
-      }
+  
     
     return file;
-}
-
-var addExifData = function() {
-    var file = this;
-
-    return new Promise(function(resolve, reject) {
-      try {
-        new ExifImage({ image : file._id }, function (error, exifData) {
-            if (error) {
-                resolve(file);                 
-            } else if (exifData && exifData.exif) {
-                  exifData.exif && exifData.exif.MakerNote && (exifData.exif.MakerNote = {});
-                  exifData.exif && exifData.exif.UserComment && (exifData.exif.UserComment = {});
-                  file.exifData = exifData;
-                  resolve(file);
-            } else {
-                resolve(file);
-            }
-          });
-      } catch (error) {
-          resolve(file);
-      }
-    });
 }
 
 module.exports = Recursive

@@ -15,7 +15,8 @@ global.MODULES = {
 }
 
 global.TABLES = {
-    FILES: 'files'
+    FILES: 'files',
+    EVENTS: 'events'
 }
 
 global.EVENTS = {

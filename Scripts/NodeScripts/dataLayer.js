@@ -1,13 +1,39 @@
 require('./constants.js');
 var _ = require('underscore');
 //var DataSet = require('./data.js');
-var DataSet = require('./dataInterfaces/loki.js');
+var DataSet = require('./dataSources/loki.js');
 
 var DataLayer =  function() {
 
 
     return {
             data: DataSet,
+
+            init: function() {
+                return this.data.init();
+            },
+
+            save: function(item, collection) {
+                return this.data.add(collection, item);
+            },
+
+            update: function(item, collection) {
+                return this.data.update(collection, item);
+            },
+
+            delete: function(item, collection) {
+
+            },
+
+            find: function(collection, query) {
+                return this.data.findAllWhere(collection, query);
+            },
+
+            findOne: function(collection, query) {
+                return this.data.findOne(collection, query);
+            },
+
+            // TODO Deprecate these
 
             addFile: function(file) {
                 this.data.add(TABLES.FILES, file);

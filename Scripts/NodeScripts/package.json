@@ -9,7 +9,8 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "exif": "^0.6.0"
+    "exif": "^0.6.0",
+    "jasmine": "^2.6.0"
   },
   "dependencies": {
     "async": "^2.3.0",
