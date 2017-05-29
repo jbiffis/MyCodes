@@ -2,6 +2,7 @@ require('../constants.js');
 var Promise = require("bluebird");
 var Recursive = require('../scanner.js');
 var async = require('async');
+var parallelLimit = require('run-parallel-limit');
 var fs = require('fs-extra');
 var timer = require('perfy');
 const logger = require('winston');
@@ -14,6 +15,7 @@ var FileIndexer = function() {
 }
 
 function index (baseDir, options) {
+    var tasks = [];
     return new Promise(function(resolve, reject) {
         if (!fs.existsSync(baseDir)) {
             logger.error("Folder [%s] does not exist motherfucker", baseDir);
@@ -26,46 +28,37 @@ function index (baseDir, options) {
             resolve(collection);
         });
     })
-    .then(data => {
-
-        
-        var tasks = [];
-
-        timer.start('Pull EXIF Data');
-        return new Promise(function(resolve, reject) {
-            var filesArr = data;
-            filesArr.forEach(file => {
-                // look if it is in the db
-                photos.files.findOne({path: file._id})
-                    .then(matchedFile => {
-                        if (!matchedFile) {
-                            matchedFile = photos.files.add(file);
-                            
+    .each(file => {
+        return photos.files.findOne({path: file.path})
+            .then(matchedFile => {
+                if (!matchedFile) {
+                    return photos.files.add(file)
+                        .then(matchedFile => {
                             tasks.push(function(cb) {
-                                logger.silly("Reading EXIF Data for %s", file._id);
-                                matchedFile.getExifData()
-                                    .then(() => {
-                                        matchedFile.save();
+                                return matchedFile.updateExifInfo()
+                                    .then(data => {
+                                        cb();
                                     });
-                            });
-                        } else {
-                            if (matchedFile.modified < file.modified) {
-                                matchedFile.updateFileData();
-                            }
-                        }
-                    });                
-            });
-
-            // Can't queue up too many file operations at once!
-            async.parallelLimit(tasks, 10, function(err, result) {
-                var totalTime = timer.end('Pull EXIF Data');
-                logger.debug("It took %ss to pull the EXIF data for %d files", totalTime.time, filesArr.length);
-
-                if (err) {
-                    console.log("rejecting");
-                    reject(err);
+                                });
+                        });
+                } else {
+                    if (matchedFile.modified < file.modified) {
+                        return matchedFile.updateFileData();
+                    }
                 }
-                resolve(data);
+            });            
+    })    
+    .then(data => {
+        // Can't queue up too many file operations at once!
+        return new Promise(function(resolve, reject) {
+            parallelLimit(tasks, 20, function(err, result) {
+                if (err) {
+                    logger.error("Something bad happened during EXIF data extraction");
+                    reject(err);
+                } else {
+                    logger.debug("Finished pulling EXIF data");
+                    resolve(data);
+                }            
             });
         });
     })
@@ -73,8 +66,6 @@ function index (baseDir, options) {
         logger.error(err);
     });
 }
-
-
 
 module.exports = FileIndexer;
 

@@ -81,7 +81,7 @@ module.exports = function(db, logger) {
 */
   File.prototype.save = function() {
     var self = this;
-    logger.debug("Entered File.save() save data for File: %s", this.data._id);
+    logger.debug("Entered File.save() save data for File: %s", this.data._id || this.data.path);
 
     if (self.data._id) {
       //return db.saveDocument("Files", {"_id": self.data._id}, self.data)
@@ -99,25 +99,29 @@ module.exports = function(db, logger) {
   };
 
   File.prototype.updateExifInfo = function() {
-    var file = this;
+    var self = this;
 
     return new Promise(function(resolve, reject) {
-      try {
-        new ExifImage({ image : file._id }, function (error, exifData) {
+        new ExifImage({ image : self.data.path }, function (error, exifData) {
             if (error) {
-                resolve(file);                 
+                self.data.exifData = error;
+                resolve(self);
             } else if (exifData && exifData.exif) {
                   exifData.exif && exifData.exif.MakerNote && (exifData.exif.MakerNote = {});
                   exifData.exif && exifData.exif.UserComment && (exifData.exif.UserComment = {});
-                  file.exifData = exifData;
-                  resolve(file);
+                  self.data.exifData = exifData;
+                  resolve(self);
             } else {
-                resolve(file);
+                resolve(self);
             }
           });
-      } catch (error) {
-          resolve(file);
-      }
+    })
+    .then(() => {
+      return self.save();
+    })
+    .catch(err => {
+      logger.error(err.msg | err.message);
+      return;
     });
   };
 
@@ -134,3 +138,5 @@ module.exports = function(db, logger) {
   return File;
 
 };
+
+

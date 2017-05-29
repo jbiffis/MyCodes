@@ -1,6 +1,7 @@
 var _ = require('underscore');
 var loki = require('lokijs');
 var Promise = require("bluebird");
+var uuid = require("uuid");
 
 var db = null;
 var dbReady = false;
@@ -33,6 +34,9 @@ var data = {
         add: function(table, object) {
             if (!dbReady) return false;
             return Promise.try(() => {
+                if(!object._id) {
+                    object._id = uuid.v4();
+                }
                 collections[table].insert(object);
             });
         },
@@ -58,6 +62,7 @@ var data = {
         },
 
         findOne: function(table, params) {
+            if (!dbReady) return false;
             return collections[table].findOne(params);
         }
 }

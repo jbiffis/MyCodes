@@ -14,6 +14,14 @@
         },
         {
             "type": "node",
+            "request": "launch",
+            "name": "Launch Indexer",
+            "program": "${workspaceRoot}\\Scripts\\NodeScripts\\indexer\\index.js",
+            "cwd": "${workspaceRoot}",
+            "args": [ "src=E:\\TestSrc", "dest=E:\\TestDest" ]
+        },
+        {
+            "type": "node",
             "request": "attach",
             "name": "Attach to Process",
             "port": 5858

@@ -24,6 +24,7 @@
     "nodemailer": "^3.1.4",
     "perfy": "^1.1.2",
     "recursive-readdir": "^2.1.1",
+    "run-parallel-limit": "^1.0.3",
     "sprintf-js": "^1.0.3",
     "underscore": "^1.8.3",
     "winston": "^2.3.1"

@@ -7,6 +7,7 @@ module.exports = function(db, logger) {
 
     return {
         add: function(data) {
+            logger.debug("Entered Files.add() with data: %s", JSON.stringify(data));
             return Promise.try(() => {
                 var file = new File(data);
                 return file.save();
@@ -14,16 +15,19 @@ module.exports = function(db, logger) {
         },
 
         find: function(params) {
-            return Promise.try(() => {
-                return File.find(params);
-                //this.data.find(TABLES.FILES, params)
-            });
+            logger.debug("Entered Files.find() looking for Files with query: %s", JSON.stringify(params));
+            return File.find(params)
+                .then(data => {
+                    return data;
+                });
         },
 
         findOne: function(params) {
-            return Promise.try(() => {
-                return File.find(params)[0];
-            });
+            logger.debug("Entered Files.findOne() looking for a file with query: %s", JSON.stringify(params));
+            return File.find(params)
+                .then(data => {
+                    return data[0];
+                });
         },
     }
 };
