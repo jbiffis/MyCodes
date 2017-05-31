@@ -6,7 +6,7 @@ var parallelLimit = require('run-parallel-limit');
 var fs = require('fs-extra');
 var timer = require('perfy');
 const logger = require('winston');
-var photos = require('../interfaces/photoJSON.js');
+var photosAPI = require('../interfaces/photoJSON.js');
 
 var FileIndexer = function() {
     return {
@@ -29,10 +29,11 @@ function index (baseDir, options) {
         });
     })
     .each(file => {
-        return photos.files.findOne({path: file.path})
+        return photosAPI.files.findOne({path: file.path})
             .then(matchedFile => {
                 if (!matchedFile) {
-                    return photos.files.add(file)
+                    // TODO log new file
+                    return photosAPI.files.add(file)
                         .then(matchedFile => {
                             tasks.push(function(cb) {
                                 return matchedFile.updateExifInfo()
@@ -40,10 +41,33 @@ function index (baseDir, options) {
                                         cb();
                                     });
                                 });
+                            photosAPI.events.add({
+                                module: MODULES.PHOTO_INDEXER,
+                                operation: 'indexPhotos',
+                                event: EVENTS.FILE_NEW,
+                                data: {
+                                    fileId: matchedFile.data._id
+                                },
+                                execTime: null
+                            });
                         });
                 } else {
+                    // TODO Double check this shit
                     if (matchedFile.modified < file.modified) {
-                        return matchedFile.updateFileData();
+                        // TODO log file has changed
+                        return matchedFile.updateFileData()
+                            .then(() => {
+                                photosAPI.events.add({
+                                    module: MODULES.PHOTO_INDEXER,
+                                    operation: 'indexPhotos',
+                                    event: EVENTS.FILE_UPDATED,
+                                    data: {
+                                        fileId: matchedFile.data._id,
+                                        dateModified: file.modified
+                                    },
+                                    execTime: null
+                                });
+                            });
                     }
                 }
             });            
@@ -51,7 +75,7 @@ function index (baseDir, options) {
     .then(data => {
         // Can't queue up too many file operations at once!
         return new Promise(function(resolve, reject) {
-            parallelLimit(tasks, 20, function(err, result) {
+            parallelLimit(tasks, 5, function(err, result) {
                 if (err) {
                     logger.error("Something bad happened during EXIF data extraction");
                     reject(err);
@@ -68,6 +92,26 @@ function index (baseDir, options) {
 }
 
 module.exports = FileIndexer;
+var params = [];
+process.argv.slice(2).forEach(function(item) {
+    params[item.split('=')[0]] = item.split('=')[1];
+})
+
+var source = params['src'] || CONFIG.options.basedir;
+
+if (source) {
+    fileindexer = new FileIndexer();
+
+    photosAPI.init()
+        .then(() => {
+            return fileIndexer1.index(source, {fullScan: true});
+        })
+        .then((dataset) =>  {
+            console.log("Number of Files: " + dataset.length);
+        });
+} else {
+    logger.error("No base dir set");
+}
 
 fileIndexer1 = new FileIndexer();
 
@@ -79,14 +123,14 @@ logger.level = 'silly';
 //fileIndexer1.index('M:\\OneDrive\\Pictures\\photos')
 //fileIndexer1.index('E:\\SkyDrive\\Pictures\\Photos\\2012\\trip')
 //fileIndexer1.index('E:\\SkyDrive\\Pictures\\Hospital-prints')
-photos.init()
+/*photosAPI.init()
     .then(() => {
         return fileIndexer1.index('E:\\TestSrc', {fullScan: true});
         //fileIndexer1.index('E:\\SkyDrive\\Pictures\\Photos\\2011')
     })
     .then((dataset) =>  {
         console.log("Number of Files: " + dataset.length);
-    });
+    });*/
 /*
 //fileIndexer.index('M:\\OneDrive\\Pictures')
 //fileIndexer.index('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')

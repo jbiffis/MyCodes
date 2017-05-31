@@ -5,6 +5,7 @@ var db = new require('../dataLayer.js')();
 const logger = require('winston');
 
 var files = require('../controllers/files.js')(db, logger);
+var events = require('../controllers/events.js')(db, logger);
 
 var photoInterface = {
     init: function() {

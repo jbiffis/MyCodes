@@ -1,3 +1,4 @@
+require('../constants.js');
 var _ = require('underscore');
 var loki = require('lokijs');
 var Promise = require("bluebird");
@@ -11,12 +12,18 @@ function dbInit() {
     return new Promise((resolve, reject) => {
         
         function loadHandler() {
-            var files = db.getCollection('files');
+            var files = db.getCollection(TABLES.FILES);
+            var events = db.getCollection(TABLES.EVENTS);
+
             if (!files) {
-                files = db.addCollection('files');
+                files = db.addCollection(TABLES.FILES);
+            }
+            if (!events) {
+                events = db.addCollection(TABLES.EVENTS);
             }
 
             collections.files = files;
+            collections.events = events;
 
             // DB is ready to go
             dbReady = true;

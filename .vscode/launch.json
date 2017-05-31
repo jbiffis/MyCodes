@@ -18,7 +18,7 @@
             "name": "Launch Indexer",
             "program": "${workspaceRoot}\\Scripts\\NodeScripts\\indexer\\index.js",
             "cwd": "${workspaceRoot}",
-            "args": [ "src=E:\\TestSrc", "dest=E:\\TestDest" ]
+            "args": [ "src=E:\\TestSrc" ]
         },
         {
             "type": "node",

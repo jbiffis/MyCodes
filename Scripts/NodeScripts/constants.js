@@ -1,3 +1,4 @@
+const config = require('C:\\node\\config.js');
 
 global.STATUS_CODES = {
     ERROR: -1,
@@ -9,9 +10,12 @@ global.STATUS_CODES = {
     COMPLETED: 3
 }
 
+global.CONFIG = config;
+
 global.MODULES = {
     HOCKEY_VIDEOS: "Express Game Videos",
-    PHOTO_COPY: "Photo Copy to OneDrive"
+    PHOTO_COPY: "Photo Copy to OneDrive",
+    PHOTO_INDEXER: "Photo Indexer"
 }
 
 global.TABLES = {
@@ -25,6 +29,8 @@ global.EVENTS = {
     FILE_RECYCLE_FAILED: 'File failed moving to Recycling Bin',
     FILE_COPIED_TO_ONEDRIVE: 'File Copied to OneDrive',
     FILE_TRANSCODED: 'File Transcoded',
+    FILE_UPDATED: "File Updated",
+    FILE_NEW: "New File",
     UNKNOWN_DATE: 'Unknown Date',
     DONE_COPY_TO_ONEDRIVE: 'Done Copy to OneDrive'
 }
