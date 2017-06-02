@@ -91,8 +91,8 @@ module.exports = function(db, logger) {
         });
     } else {
       return db.save(self.data, TABLES.FILES)
-        .then(function(_data) {
-          _.extend(self.data, _data);    // Make sure the file instance has the _id and the token.
+        .then(function(result) {
+          _.extend(self.data, result.ops[0]);    // Make sure the file instance has the _id and the token.
           return self;
         });
     }
@@ -120,12 +120,20 @@ module.exports = function(db, logger) {
       return self.save();
     })
     .catch(err => {
-      logger.error(err.msg | err.message);
+      logger.error(err.message);
       return;
     });
   };
 
   File.prototype.updateFileData = function() {
+
+  };
+
+  File.prototype.moveTo = function(dest) {
+
+  };
+
+  File.prototype.copyTo = function(dest) {
 
   };
 

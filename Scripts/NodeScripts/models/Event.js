@@ -15,6 +15,7 @@ module.exports = function(db, logger) {
         event:          null,
         data:           null,
         message:        null,
+        eventTime:      new Date(),
         execTime:       null
     };
 
@@ -80,8 +81,8 @@ module.exports = function(db, logger) {
         });
     } else {
       return db.save(self.data, TABLES.EVENTS)
-        .then(function(_data) {
-          _.extend(self.data, _data);    // Make sure the Event instance has the _id and the token.
+        .then(function(result) {
+          _.extend(self.data, result.ops[0]);    // Make sure the Event instance has the _id and the token.
           return self;
         });
     }

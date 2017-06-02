@@ -34,9 +34,9 @@ function index (baseDir, options) {
                 if (!matchedFile) {
                     // TODO log new file
                     return photosAPI.files.add(file)
-                        .then(matchedFile => {
+                        .then(result => {
                             tasks.push(function(cb) {
-                                return matchedFile.updateExifInfo()
+                                return result.updateExifInfo()
                                     .then(data => {
                                         cb();
                                     });
@@ -46,7 +46,7 @@ function index (baseDir, options) {
                                 operation: 'indexPhotos',
                                 event: EVENTS.FILE_NEW,
                                 data: {
-                                    fileId: matchedFile.data._id
+                                    fileId: result.data._id
                                 },
                                 execTime: null
                             });
@@ -87,7 +87,8 @@ function index (baseDir, options) {
         });
     })
     .catch(err => {
-        logger.error(err);
+        logger.error("Problem indexing");
+        console.log(err);
     });
 }
 
@@ -100,11 +101,11 @@ process.argv.slice(2).forEach(function(item) {
 var source = params['src'] || CONFIG.options.basedir;
 
 if (source) {
-    fileindexer = new FileIndexer();
+    fileIndexer = new FileIndexer();
 
     photosAPI.init()
         .then(() => {
-            return fileIndexer1.index(source, {fullScan: true});
+            return fileIndexer.index(source, {fullScan: true});
         })
         .then((dataset) =>  {
             console.log("Number of Files: " + dataset.length);

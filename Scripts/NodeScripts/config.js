@@ -7,9 +7,11 @@ config.mail = {
     password :  ''
 }
 
-config.database = {
-    filename: 'photodb.json'
+config.server = {
+    database: 'mongodb://localhost:27017/photoManager'
 }
+
+
 
 config.options = {
     basedir: 'E:\\TestDest'

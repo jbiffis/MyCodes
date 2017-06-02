@@ -5,6 +5,7 @@ var _ = require('underscore');
 var stats = require('../stats.js');
 var fileUtils = require('../fileUtils.js');
 var FileIndexer = require('../fileIndex.js');
+var photosAPI = require('../interfaces/photoJSON.js');
 const path = require('path');
 const util = require('util');
 var timer = require('perfy');
@@ -21,26 +22,22 @@ var task = {
 
 function copyFilesToOneDrive(options) {
     // scan over the files
-    var sourceFiles, destFiles;
+    var sourceFiles;
     timer.start('Copy Photos to OneDrive');
 
     var source = new FileIndexer();
-    var dest = new FileIndexer();
 
-    return new Promise.join(source.buildIndex(options.folder, false), dest.buildIndex(options.destDir, false))
-        .then((result) => {
-            sourceFiles = result[0];
-            destFiles = result[1];
+    return source.buildIndex(options.folder, false)
+        .then(sourceFiles => {
 
-            var message = util.format("Source Files: %s, Destination Files: %s", sourceFiles.numberOfFiles(), destFiles.numberOfFiles());
+            var message = util.format("Source Files: %s", sourceFiles.numberOfFiles());
             
             stats.logEvent({
                 module: MODULES.PHOTO_COPY,
                 operation: 'copyPhotosToOneDrive',
                 event: EVENTS.COPY_STARTED,
                 data: {
-                    numSourceFiles: sourceFiles.numberOfFiles(),
-                    numDestFiles: destFiles.numberOfFiles()
+                    numSourceFiles: sourceFiles.numberOfFiles()
                 },
                 message: message
             })
@@ -49,8 +46,8 @@ function copyFilesToOneDrive(options) {
 
             return sourceFiles.getFiles();
         })
-        .each((file) => {           
-            var matchingFiles = destFiles.findAllWhere({name: file.name});
+        .each((fileData) => {           
+            var matchingFiles = photosAPI.files.find({name: fileData.name});
 
             if (matchingFiles.length > 0) {
                 stats.logEvent({
@@ -58,16 +55,17 @@ function copyFilesToOneDrive(options) {
                     operation: 'copyPhotosToOneDrive',
                     event: EVENTS.DUPLICATE_FILE,
                     data: {
-                        originalFile: file,
+                        originalFile: fileData,
                         matchedFiles: matchingFiles
                     },
-                    message: util.format("File [%s] already exists in destination", file._id),
+                    message: util.format("File [%s] already exists in destination", fileData.name),
                     execTime: null
                 })
-                logger.silly("[%s] - File already in destination %d times", file._id, matchingFiles.length);
+                logger.silly("[%s] - File already in destination %d times", file.name, matchingFiles.length);
                 
                 return true;
             } else {
+                var file = new File(fileData);
                 return file.addExifData()
                     .then(file => {
                         var destSubPath = getSubPath(file);

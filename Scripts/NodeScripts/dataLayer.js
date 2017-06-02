@@ -1,7 +1,8 @@
 require('./constants.js');
 var _ = require('underscore');
 //var DataSet = require('./data.js');
-var DataSet = require('./dataSources/loki.js');
+//var DataSet = require('./dataSources/loki.js');
+var DataSet = require('./dataSources/mongo.js');
 
 var DataLayer =  function() {
 
@@ -18,7 +19,7 @@ var DataLayer =  function() {
             },
 
             update: function(item, collection) {
-                return this.data.update(collection, item);
+                return this.data.update(collection, {"_id": item._id}, item);
             },
 
             delete: function(item, collection) {
@@ -26,7 +27,7 @@ var DataLayer =  function() {
             },
 
             find: function(collection, query) {
-                return this.data.findAllWhere(collection, query);
+                return this.data.find(collection, query);
             },
 
             findOne: function(collection, query) {

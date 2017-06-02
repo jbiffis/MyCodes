@@ -63,7 +63,7 @@ var data = {
             return collections[table].count();
         },
 
-        findAllWhere: function(table, params) {
+        find: function(table, params) {
             if (!dbReady) return false;
             return collections[table].find(params);
         },
