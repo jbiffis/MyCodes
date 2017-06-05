@@ -18,7 +18,7 @@
             "name": "Launch Indexer",
             "program": "${workspaceRoot}\\Scripts\\NodeScripts\\photoManager\\index.js",
             "cwd": "${workspaceRoot}",
-            "args": [ "src=E:\\TestSrc" ]
+            "args": [ "src=E:\\TestDest" ]
         },
         {
             "type": "node",

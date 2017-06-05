@@ -72,7 +72,7 @@ module.exports = function(db, logger) {
 */
   Event.prototype.save = function() {
     var self = this;
-    logger.debug("Entered Event.save() save data for Event: %s", this.data._id || this.data.path);
+    logger.debug("Entered Event.save() save data for Event: %s", this.data);
 
     if (self.data._id) {
       return db.update(self.data, TABLES.EVENTS)

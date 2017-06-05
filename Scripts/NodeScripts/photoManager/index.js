@@ -3,7 +3,7 @@ var Promise = require("bluebird");
 var Recursive = require('../scanner.js');
 var async = require('async');
 var parallelLimit = require('run-parallel-limit');
-var fs = require('fs-extra');
+var fs = require('graceful-fs')
 var timer = require('perfy');
 const logger = require('winston');
 var photosAPI = require('../interfaces/photoJSON.js');
@@ -32,29 +32,29 @@ function index (baseDir, options) {
         return photosAPI.files.findOne({path: file.path})
             .then(matchedFile => {
                 if (!matchedFile) {
-                    // TODO log new file
-                    return photosAPI.files.add(file)
-                        .then(result => {
-                            tasks.push(function(cb) {
-                                return result.updateExifInfo()
-                                    .then(data => {
-                                        cb();
-                                    });
-                                });
-                            photosAPI.events.add({
-                                module: MODULES.PHOTO_INDEXER,
-                                operation: 'indexPhotos',
-                                event: EVENTS.FILE_NEW,
-                                data: {
-                                    fileId: result.data._id
-                                },
-                                execTime: null
-                            });
+                    return Promise.try(function() {
+                        return photosAPI.files.add(file);
+                    }).then(function(result) {
+                        tasks.push(function(cb) {
+                            return photosAPI.files.updateExifInfo(result.data._id)
+                                .then(data => {
+                                    cb();
+                                })    
                         });
+
+                        photosAPI.events.add({
+                            module: MODULES.PHOTO_INDEXER,
+                            operation: 'indexPhotos',
+                            event: EVENTS.FILE_NEW,
+                            data: {
+                                fileId: result.data._id
+                            },
+                            execTime: null
+                        });  
+                    });
                 } else {
                     // TODO Double check this shit
                     if (matchedFile.modified < file.modified) {
-                        // TODO log file has changed
                         return matchedFile.updateFileData()
                             .then(() => {
                                 photosAPI.events.add({

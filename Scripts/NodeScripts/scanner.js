@@ -1,4 +1,4 @@
-var fs = require('fs')
+var fs = require('graceful-fs')
 var p = require('path')
 var minimatch = require('minimatch');
 var ExifImage = require('exif').ExifImage;

@@ -2,7 +2,6 @@
 require('../constants.js');
 var _ = require('underscore');
 //var format = require('../format');
-var ExifImage = require('exif').ExifImage;
 var Promise = require("bluebird");
 
 module.exports = function(db, logger) {
@@ -11,7 +10,7 @@ module.exports = function(db, logger) {
     logger.debug("Entered File() with data: %s", JSON.stringify(data));
 
     var schema = {
-        path:          null,
+        path:         null,
         name:         null,
         size:         null,
         created:      null,
@@ -84,7 +83,6 @@ module.exports = function(db, logger) {
     logger.debug("Entered File.save() save data for File: %s", this.data._id || this.data.path);
 
     if (self.data._id) {
-      //return db.saveDocument("Files", {"_id": self.data._id}, self.data)
       return db.update(self.data, TABLES.FILES)
         .then(function(result) {
           return self;
@@ -96,33 +94,6 @@ module.exports = function(db, logger) {
           return self;
         });
     }
-  };
-
-  File.prototype.updateExifInfo = function() {
-    var self = this;
-
-    return new Promise(function(resolve, reject) {
-        new ExifImage({ image : self.data.path }, function (error, exifData) {
-            if (error) {
-                self.data.exifData = error;
-                resolve(self);
-            } else if (exifData && exifData.exif) {
-                  exifData.exif && exifData.exif.MakerNote && (exifData.exif.MakerNote = {});
-                  exifData.exif && exifData.exif.UserComment && (exifData.exif.UserComment = {});
-                  self.data.exifData = exifData;
-                  resolve(self);
-            } else {
-                resolve(self);
-            }
-          });
-    })
-    .then(() => {
-      return self.save();
-    })
-    .catch(err => {
-      logger.error(err.message);
-      return;
-    });
   };
 
   File.prototype.updateFileData = function() {
