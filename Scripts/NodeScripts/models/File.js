@@ -13,6 +13,7 @@ module.exports = function(db, logger) {
         path:         null,
         name:         null,
         size:         null,
+        type:         null,
         created:      null,
         accessed:     null,
         modified:     null
@@ -82,6 +83,9 @@ module.exports = function(db, logger) {
     var self = this;
     logger.debug("Entered File.save() save data for File: %s", this.data._id || this.data.path);
 
+    // Operations before saving
+    this.setType();
+
     if (self.data._id) {
       return db.update(self.data, TABLES.FILES)
         .then(function(result) {
@@ -99,6 +103,30 @@ module.exports = function(db, logger) {
   File.prototype.updateFileData = function() {
 
   };
+
+  File.prototype.setType = function() {
+    var extension = this.data.path.split('.');
+    extension = extension[extension.length-1].toLowerCase();
+
+
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'gif':
+      case 'heif':
+        this.data.type = FILE_TYPES.IMAGE;
+        break;
+      case 'avi':
+      case 'mpeg':
+      case 'mkv':
+      case 'mov':
+      case '3gp':
+      case 'h264':
+        this.data.type = FILE_TYPES.VIDEO;
+        break;  
+    }
+  }
 
   File.prototype.moveTo = function(dest) {
 

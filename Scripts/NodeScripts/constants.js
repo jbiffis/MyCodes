@@ -18,6 +18,11 @@ global.MODULES = {
     PHOTO_INDEXER: "Photo Indexer"
 }
 
+global.FILE_TYPES = {
+    IMAGE: "Image",
+    VIDEO: "Video"
+}
+
 global.TABLES = {
     FILES: 'files',
     EVENTS: 'events'
