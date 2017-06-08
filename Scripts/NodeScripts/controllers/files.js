@@ -1,9 +1,5 @@
 require('../constants.js');
 var Promise = require("bluebird");
-var ExifImage = require('exif').ExifImage;
-var fs = require('graceful-fs')
-
-Promise.promisifyAll(fs);
 
 module.exports = function(db, logger) {
 
@@ -32,43 +28,8 @@ module.exports = function(db, logger) {
                 .then(data => {
                     return data[0];
                 });
-        },
-
-        updateExifInfo: function(id) {
-            var file;
-            return File.find({_id: id})
-                .then(result => {
-                    file = result[0];
-                    if (file.getProp("type") !== FILE_TYPES.IMAGE) {
-                        file.data.exifData = "Unsupported File Type";
-                        return file;
-                    }
-                    return fs.readFileAsync(file.data.path)
-                      .then((fileBuffer, err) => {
-                        return new Promise(function(resolve, reject) {
-                            new ExifImage(fileBuffer, function (error, exifData) {
-                            if (error) {
-                                file.data.exifData = error;
-                                resolve(file);
-                            } else if (exifData && exifData.exif) {
-                                    exifData.exif && exifData.exif.MakerNote && (exifData.exif.MakerNote = {});
-                                    exifData.exif && exifData.exif.UserComment && (exifData.exif.UserComment = {});
-                                    file.data.exifData = exifData;
-                                    resolve(file);
-                            } else {
-                                resolve(file);
-                            }
-                        });
-                    });                
-                    });
-                })
-            .then(file => {
-                return file.save();
-            })
-            .catch(err => {
-                logger.error(err.message);
-                return;
-            });
         }
+
+        
     }
 };

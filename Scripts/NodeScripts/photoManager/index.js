@@ -35,12 +35,12 @@ function index (baseDir, options) {
                     return Promise.try(function() {
                         return photosAPI.files.add(file);
                     }).then(function(result) {
-                        tasks.push(function(cb) {
-                            return photosAPI.files.updateExifInfo(result.data._id)
-                                .then(data => {
-                                    cb();
-                                })    
-                        });
+                        photosAPI.jobs.add({
+                            operation: TASK_PROCESSORS.UPDATE_EXIF_DATA,
+                            data: {
+                                fileId: result.data._id
+                            }
+                        })
 
                         photosAPI.events.add({
                             module: MODULES.PHOTO_INDEXER,

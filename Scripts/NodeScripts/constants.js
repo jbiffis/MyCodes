@@ -25,7 +25,8 @@ global.FILE_TYPES = {
 
 global.TABLES = {
     FILES: 'files',
-    EVENTS: 'events'
+    EVENTS: 'events',
+    JOBS: 'jobs'
 }
 
 global.EVENTS = {
@@ -36,11 +37,13 @@ global.EVENTS = {
     FILE_TRANSCODED: 'File Transcoded',
     FILE_UPDATED: "File Updated",
     FILE_NEW: "New File",
+    JOB_COMPLETE: "Job Complete",
     UNKNOWN_DATE: 'Unknown Date',
     DONE_COPY_TO_ONEDRIVE: 'Done Copy to OneDrive'
 }
 
 global.TASK_PROCESSORS = {
     COPY_TO_ONEDRIVE: 'copyFilesToOneDrive',
-    HOCKEY_VIDEO_TRANSCODE: 'hockeyVideos'
+    HOCKEY_VIDEO_TRANSCODE: 'hockeyVideos',
+    UPDATE_EXIF_DATA: 'updateExifData'
 }

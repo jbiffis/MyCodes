@@ -26,8 +26,8 @@ var DataLayer =  function() {
 
             },
 
-            find: function(collection, query) {
-                return this.data.find(collection, query);
+            find: function(collection, query, opts) {
+                return this.data.find(collection, query, opts);
             },
 
             findOne: function(collection, query) {

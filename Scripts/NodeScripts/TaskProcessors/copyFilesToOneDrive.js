@@ -4,7 +4,6 @@ var Promise = require("bluebird");
 var _ = require('underscore');
 var stats = require('../stats.js');
 var fileUtils = require('../fileUtils.js');
-var FileIndexer = require('../fileIndex.js');
 var photosAPI = require('../interfaces/photoJSON.js');
 const path = require('path');
 const util = require('util');

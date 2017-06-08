@@ -6,6 +6,7 @@ const logger = require('winston');
 
 var files = require('../controllers/files.js')(db, logger);
 var events = require('../controllers/events.js')(db, logger);
+var jobs = require('../controllers/jobs.js')(db, logger);
 
 var photoInterface = {
     init: function() {
@@ -13,7 +14,8 @@ var photoInterface = {
     },
     
     files: files,
-    events: events
+    events: events,
+    jobs: jobs
 }
 
 
