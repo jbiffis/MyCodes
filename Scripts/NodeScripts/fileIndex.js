@@ -80,7 +80,7 @@ logger.level = 'silly';
 fileIndexer1.buildIndex('E:\\TestSrc')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Photos\\2011')
   .then((dataset) =>  {
-      console.log("Number of Files: " + dataset.numberOfFiles());
+      console.log("Number of Files: " + dataset.length);
     });
 /*
 //fileIndexer.buildIndex('M:\\OneDrive\\Pictures')

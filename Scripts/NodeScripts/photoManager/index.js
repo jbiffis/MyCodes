@@ -1,8 +1,6 @@
 require('../constants.js');
 var Promise = require("bluebird");
 var Recursive = require('../scanner.js');
-var async = require('async');
-var parallelLimit = require('run-parallel-limit');
 var fs = require('graceful-fs')
 var timer = require('perfy');
 const logger = require('winston');

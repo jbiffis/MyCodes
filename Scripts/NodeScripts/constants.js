@@ -20,7 +20,8 @@ global.MODULES = {
 
 global.FILE_TYPES = {
     IMAGE: "Image",
-    VIDEO: "Video"
+    VIDEO: "Video",
+    UNKNOWN: "Unknown"
 }
 
 global.TABLES = {
@@ -37,6 +38,7 @@ global.EVENTS = {
     FILE_TRANSCODED: 'File Transcoded',
     FILE_UPDATED: "File Updated",
     FILE_NEW: "New File",
+    COPY_STARTED: "Copy to One Drive started",
     JOB_COMPLETE: "Job Complete",
     UNKNOWN_DATE: 'Unknown Date',
     DONE_COPY_TO_ONEDRIVE: 'Done Copy to OneDrive'

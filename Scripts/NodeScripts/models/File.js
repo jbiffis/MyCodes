@@ -1,6 +1,7 @@
 // app/models/File.js
 require('../constants.js');
 var _ = require('underscore');
+var fileUtils = require('../fileUtils.js');
 //var format = require('../format');
 var Promise = require("bluebird");
 
@@ -105,27 +106,7 @@ module.exports = function(db, logger) {
   };
 
   File.prototype.setType = function() {
-    var extension = this.data.path.split('.');
-    extension = extension[extension.length-1].toLowerCase();
-
-
-    switch (extension) {
-      case 'jpg':
-      case 'jpeg':
-      case 'png':
-      case 'gif':
-      case 'heif':
-        this.data.type = FILE_TYPES.IMAGE;
-        break;
-      case 'avi':
-      case 'mpeg':
-      case 'mkv':
-      case 'mov':
-      case '3gp':
-      case 'h264':
-        this.data.type = FILE_TYPES.VIDEO;
-        break;  
-    }
+    this.data.type = fileUtils.getFileType(this.data.path);
   }
 
   File.prototype.moveTo = function(dest) {

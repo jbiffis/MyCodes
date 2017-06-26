@@ -48,10 +48,10 @@ function jobLoop() {
 
         photosAPI.events.add({
             module: MODULES.TAKS_RUNNER,
-            operation: results.job.operation,
+            operation: results.job.getProp('operation'),
             event: EVENTS.JOB_COMPLETE,
             data: {
-                fileId: result.data._id
+                jobId: results.job.data._id
             },
             execTime: totalTime
         });
@@ -67,10 +67,10 @@ function findNextJob() {
 }
 
 function runJob(job) {
-    var op   = job.getProp("operation");
-    var data = job.getProp("data");
+    var op    = job.getProp("operation");
+    var data  = job.getProp("data");
 
-    var taskProcessor = require('../TaskProcessors/'+op+'.js')(photosAPI);
+    var taskProcessor = require('../TaskProcessors/'+op+'.js')(photosAPI, job.data._id);
 
     if (!taskProcessor) {
         logger.error("No task processor found for operation [%s]", op);

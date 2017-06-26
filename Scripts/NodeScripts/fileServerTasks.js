@@ -7,6 +7,7 @@ var email = require('./mailer.js');
 var stats = require('./stats.js');
 var fileUtils = require('./fileUtils.js');
 var FileIndexer = require('./fileIndex.js');
+var photosAPI = require('./interfaces/photoJSON.js');
 const path = require('path');
 const util = require('util');
 var timer = require('perfy');
@@ -24,7 +25,6 @@ var prepareEmail = function(stats)  {
                         event: EVENTS.COPY_STARTED
                     })[0];
     var numSourceFiles = startEvent.data.numSourceFiles;
-    var numDestFiles = startEvent.data.numDestFiles;
     var numDuplicates = stats.searchEvents({
                         module: MODULES.PHOTO_COPY,
                         operation: 'copyPhotosToOneDrive',
@@ -51,10 +51,9 @@ var prepareEmail = function(stats)  {
                         event: EVENTS.DONE_COPY_TO_ONEDRIVE
                     })[0];
     var totalTime = endEvent.data.execTime.time;
-    var finalNumDestFiles = endEvent.data.numDestFiles;
 
-    var string = "Completed adding new files to onedrive: \n%d Source files, %d files in destination at start, %d files in destination at end. \n%d duplicate files, %d copied to OneDrive, %d moved to Recycling Bin, %d have an Unknown Date \nOperation took %d seconds";
-    var message = util.format(string, numSourceFiles, numDestFiles, finalNumDestFiles, numDuplicates.length, numCopied.length, numRecycled.length, numUndated.length, totalTime);
+    var string = "Completed adding new files to onedrive: \n%d Source files. \n%d duplicate files, %d copied to OneDrive, %d moved to Recycling Bin, %d have an Unknown Date \nOperation took %d seconds";
+    var message = util.format(string, numSourceFiles, numDuplicates.length, numCopied.length, numRecycled.length, numUndated.length, totalTime);
     
     logger.debug(message);
     return message;
@@ -67,28 +66,33 @@ var liveSet = [
             "folder" : "M:\\Videos\\Aylmer Express\\To Be Transcoded"
         }
     },*/ {
-        "task"  :   TASK_PROCESSORS.COPY_TO_ONEDRIVE,
-        "options" : {
+        "operation"  :   TASK_PROCESSORS.COPY_TO_ONEDRIVE,
+        "data" : {
             "folder"    :  "M:\\Temp Photo Landing Zone",
-            "destDir"   :  "M:\\OneDrive\\Pictures",
+            "destDir"   :  "M:\\OneDrive\\Pictures\\Photos",
             "recycleBin":   "M:\\RecycleBin",
-            "safeMode"  :   true    // Don't actually copy files
+            "safeMode"  :   false    // Don't actually copy files
         }
     }
 ]
 
-var testSet1 = [
+var dev = [
     {
-        "task"  :   TASK_PROCESSORS.COPY_TO_ONEDRIVE,
-        "options" : {
+        "operation"  :   TASK_PROCESSORS.COPY_TO_ONEDRIVE,
+        "data" : {
             "folder"    :  "E:\\TestSrc",
-            "destDir"   :  "E:\\TestDest\\Photos",
+            "destDir"   :  "E:\\TestDest",
             "recycleBin":   "E:\\RecycleBin",
-            "safeMode"  :   true    // Don't actually copy files
+            "safeMode"  :   false    // Don't actually copy files
         }
     }
 ]
+photosAPI.init()
+.then(() => {
+    photosAPI.jobs.add(dev)
+})
 
+/*
 testSet1.forEach(queuedTask => {
     var taskProcessor = require('./TaskProcessors/'+queuedTask.task+'.js')
     return taskProcessor.run(queuedTask.options)
@@ -100,3 +104,4 @@ testSet1.forEach(queuedTask => {
             //process.exit();
         });
 });
+*/

@@ -1,129 +1,123 @@
 require('../constants.js');
-var fs = require('fs-extra');
 var Promise = require("bluebird");
 var _ = require('underscore');
 var stats = require('../stats.js');
+var fs = require('fs');
 var fileUtils = require('../fileUtils.js');
-var photosAPI = require('../interfaces/photoJSON.js');
+var Recursive = require('../scanner.js');
+var parallelLimit = require('run-parallel-limit')
 const path = require('path');
 const util = require('util');
 var timer = require('perfy');
 const logger = require('winston');
 
-logger.level = 'debug';
-var locale = "en-us";
-
 Promise.promisifyAll(fs);
 
-var task = {
-    run: copyFilesToOneDrive
-}
+var task = function(photosAPI, jobId) {
+    return {
+        run: function copyFilesToOneDrive(options) {
 
-function copyFilesToOneDrive(options) {
-    // scan over the files
-    var sourceFiles;
-    timer.start('Copy Photos to OneDrive');
+        timer.start('Copy Photos to OneDrive');
 
-    var source = new FileIndexer();
+        return new Promise(function(resolve, reject) {
+            if (!fs.existsSync(options.folder)) {
+                logger.error("Folder [%s] does not exist motherfucker", options.folder);
+                throw new Error("Source dir does not exist");
+            }
 
-    return source.buildIndex(options.folder, false)
-        .then(sourceFiles => {
+            if (!fs.existsSync(options.destDir)) {
+                logger.error("Folder [%s] does not exist motherfucker", options.destDir);
+                throw new Error("Dest dir does not exist");
+            }
 
-            var message = util.format("Source Files: %s", sourceFiles.numberOfFiles());
+            var recursive = new Recursive();
             
+            recursive.readdir(options.folder, function (err, collection) {
+            // Files is an array of filename
+            var message = util.format("Source Files: %s", collection.length);
+                
             stats.logEvent({
                 module: MODULES.PHOTO_COPY,
                 operation: 'copyPhotosToOneDrive',
                 event: EVENTS.COPY_STARTED,
                 data: {
-                    numSourceFiles: sourceFiles.numberOfFiles()
+                    numSourceFiles: collection.length,
+                    jobId: jobId
                 },
                 message: message
             })
 
             logger.silly(message);
+            
+            return new Promise.each(collection, file => {
+                return fileUtils.getDateCreated(file.path, {created: file.created, modified: file.modified, accessed: file.accessed})
+                .then(dateCreated => {
+                    file.dateCreated = dateCreated;
+                    
+                    var subpath = getSubPath(file);
+                    newPath = path.join(options.destDir, subpath, file.name);
 
-            return sourceFiles.getFiles();
-        })
-        .each((fileData) => {           
-            var matchingFiles = photosAPI.files.find({name: fileData.name});
+                    if (fs.existsSync(newPath)) {
+                        stats.logEvent({
+                            module: MODULES.PHOTO_COPY,
+                            operation: 'copyPhotosToOneDrive',
+                            event: EVENTS.DUPLICATE_FILE,
+                            data: {
+                                originalFile: file,
+                                jobId: jobId
+                            },
+                            message: util.format("File [%s] already exists in destination", file.name),
+                            execTime: null
+                        })
+                        logger.silly("[%s] - File already in destination", file.name);
+                        
+                        return moveToRecycleBin(file, options);
+                    }
 
-            if (matchingFiles.length > 0) {
+                    if(options.safeMode) {
+                        return true;
+                    }
+
+                    return fileUtils.copyFile(file.path, newPath);
+                })
+                .then(() => {
+                    stats.logEvent({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.FILE_COPIED_TO_ONEDRIVE,
+                        data: {
+                            originalFile: file,
+                            destination: options.destDir,
+                            jobId: jobId
+                        }
+                    });
+                });
+            })
+            .finally(() => {
+                var totalTime = timer.end('Copy Photos to OneDrive');
                 stats.logEvent({
                     module: MODULES.PHOTO_COPY,
                     operation: 'copyPhotosToOneDrive',
-                    event: EVENTS.DUPLICATE_FILE,
+                    event: EVENTS.DONE_COPY_TO_ONEDRIVE,
+                    status: STATUS_CODES.SUCCESS,
                     data: {
-                        originalFile: fileData,
-                        matchedFiles: matchingFiles
+                        execTime: totalTime,
+                        jobId: jobId
                     },
-                    message: util.format("File [%s] already exists in destination", fileData.name),
-                    execTime: null
+                    message: util.format("OndeDrive photo copy is done")
                 })
-                logger.silly("[%s] - File already in destination %d times", file.name, matchingFiles.length);
-                
-                return true;
-            } else {
-                var file = new File(fileData);
-                return file.addExifData()
-                    .then(file => {
-                        var destSubPath = getSubPath(file);
-                        var destPath = path.join(options.destDir, destSubPath, file.name);
-
-                        logger.silly("[%s] - File copying to [%s]", file._id, destPath);
-
-                        if(options.safeMode) {
-                            throw new Error("Safe Mode enabled");
-                        }
-
-                        // TODO: Eventually this should be a move.
-                        return fs.copyAsync(file._id, destPath, {preserveTimestamps: true})
-                            .then(() => {
-                                destFiles.addFile(file);
-
-                                stats.logEvent({
-                                    module: MODULES.PHOTO_COPY,
-                                    operation: 'copyPhotosToOneDrive',
-                                    event: EVENTS.FILE_COPIED_TO_ONEDRIVE,
-                                    data: {
-                                        originalFile: file,
-                                        destination: destPath
-                                    },
-                                    message: util.format("File copied from %s to %s", file._id)
-                                });
-                            });
-                    })
-                    .catch((err) => {
-                        //console.log(err);
-                    })
-            }
-
-        })
-        .each(file => {
-            var matchingFiles = destFiles.findAllWhere({name: file.name});
-
-            if (matchingFiles.length > 0) {
-                return moveToRecycleBin(file, options);
-            } else {
-                logger.silly("[%s] - File wasn't copied over", file._id);
-            }
-        })
-        .finally(() => {
-            var totalTime = timer.end('Copy Photos to OneDrive');
-            stats.logEvent({
-                module: MODULES.PHOTO_COPY,
-                operation: 'copyPhotosToOneDrive',
-                event: EVENTS.DONE_COPY_TO_ONEDRIVE,
-                status: STATUS_CODES.SUCCESS,
-                data: {
-                    execTime: totalTime,
-                    numDestFiles: destFiles.numberOfFiles()
-                },
-                message: util.format("OndeDrive photo copy is done")
+                resolve();
+            })
+            .catch(err => {
+                console.log(err);
+                reject();
             });
-
-            // TODO: Save the stats object
-        });
+            
+            })
+            
+        })
+        }
+    }
 }
 
 var moveToRecycleBin = function(file, options) {
@@ -133,7 +127,7 @@ var moveToRecycleBin = function(file, options) {
 
     var recyclePath = path.join(options.recycleBin, file.name);
 
-    return fs.renameAsync(file._id, recyclePath)
+    return fs.renameAsync(file.path, recyclePath)
         .then(() => {
             stats.logEvent({
                 module: MODULES.PHOTO_COPY,
@@ -153,16 +147,14 @@ var moveToRecycleBin = function(file, options) {
                 data: {
                     originalFile: file
                 },
-                message: util.format("File moved to Recyling Bin")
+                message: util.format("Failed to move to Recyling Bin")
             })
           logger.debug("File failed copy %s to %s", file._id, recyclePath)  ;
         });
 }
 
-var getSubPath = function(file) {
-    var dateCreated = fileUtils.getDateCreated(file);
-    
-    if (dateCreated === null) {
+var getSubPath = function(file) {    
+    if (file.dateCreated === null) {
         stats.logEvent({
             module: MODULES.PHOTO_COPY,
             operation: 'copyPhotosToOneDrive',
@@ -175,11 +167,12 @@ var getSubPath = function(file) {
         return "undated";
     }
 
-    var year = dateCreated.getFullYear().toString();
-    var month = ("0" + (dateCreated.getMonth() + 1)).slice(-2) + ' - ' + dateCreated.toLocaleString(locale, { month: "long" });
+    var year = file.dateCreated.getFullYear().toString();
+    var month = ("0" + (file.dateCreated.getMonth() + 1)).slice(-2) + ' - ' + file.dateCreated.toLocaleString("en-CA", { month: "long" });
 
     return path.join(year, month); 
 }
+
 
 
 module.exports = task;
