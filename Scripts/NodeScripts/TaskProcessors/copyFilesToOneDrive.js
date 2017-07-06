@@ -33,85 +33,85 @@ var task = function(photosAPI, jobId) {
             var recursive = new Recursive();
             
             recursive.readdir(options.folder, function (err, collection) {
-            // Files is an array of filename
-            var message = util.format("Source Files: %s", collection.length);
-                
-            stats.logEvent({
-                module: MODULES.PHOTO_COPY,
-                operation: 'copyPhotosToOneDrive',
-                event: EVENTS.COPY_STARTED,
-                data: {
-                    numSourceFiles: collection.length,
-                    jobId: jobId
-                },
-                message: message
-            })
-
-            logger.silly(message);
-            
-            return new Promise.each(collection, file => {
-                return fileUtils.getDateCreated(file.path, {created: file.created, modified: file.modified, accessed: file.accessed})
-                .then(dateCreated => {
-                    file.dateCreated = dateCreated;
+                // Files is an array of filename
+                var message = util.format("Source Files: %s", collection.length);
                     
-                    var subpath = getSubPath(file);
-                    newPath = path.join(options.destDir, subpath, file.name);
-
-                    if (fs.existsSync(newPath)) {
-                        stats.logEvent({
-                            module: MODULES.PHOTO_COPY,
-                            operation: 'copyPhotosToOneDrive',
-                            event: EVENTS.DUPLICATE_FILE,
-                            data: {
-                                originalFile: file,
-                                jobId: jobId
-                            },
-                            message: util.format("File [%s] already exists in destination", file.name),
-                            execTime: null
-                        })
-                        logger.silly("[%s] - File already in destination", file.name);
-                        
-                        return moveToRecycleBin(file, options);
-                    }
-
-                    if(options.safeMode) {
-                        return true;
-                    }
-
-                    return fileUtils.copyFile(file.path, newPath);
-                })
-                .then(() => {
-                    stats.logEvent({
-                        module: MODULES.PHOTO_COPY,
-                        operation: 'copyPhotosToOneDrive',
-                        event: EVENTS.FILE_COPIED_TO_ONEDRIVE,
-                        data: {
-                            originalFile: file,
-                            destination: options.destDir,
-                            jobId: jobId
-                        }
-                    });
-                });
-            })
-            .finally(() => {
-                var totalTime = timer.end('Copy Photos to OneDrive');
                 stats.logEvent({
                     module: MODULES.PHOTO_COPY,
                     operation: 'copyPhotosToOneDrive',
-                    event: EVENTS.DONE_COPY_TO_ONEDRIVE,
-                    status: STATUS_CODES.SUCCESS,
+                    event: EVENTS.COPY_STARTED,
                     data: {
-                        execTime: totalTime,
+                        numSourceFiles: collection.length,
                         jobId: jobId
                     },
-                    message: util.format("OndeDrive photo copy is done")
+                    message: message
                 })
-                resolve();
-            })
-            .catch(err => {
-                console.log(err);
-                reject();
-            });
+
+                logger.silly(message);
+                
+                return new Promise.each(collection, file => {
+                    return fileUtils.getDateCreated(file.path, {created: file.created, modified: file.modified, accessed: file.accessed})
+                    .then(dateCreated => {
+                        file.dateCreated = dateCreated;
+                        
+                        var subpath = getSubPath(file);
+                        newPath = path.join(options.destDir, subpath, file.name);
+
+                        if (fs.existsSync(newPath)) {
+                            stats.logEvent({
+                                module: MODULES.PHOTO_COPY,
+                                operation: 'copyPhotosToOneDrive',
+                                event: EVENTS.DUPLICATE_FILE,
+                                data: {
+                                    originalFile: file,
+                                    jobId: jobId
+                                },
+                                message: util.format("File [%s] already exists in destination", file.name),
+                                execTime: null
+                            })
+                            logger.silly("[%s] - File already in destination", file.name);
+                            
+                            return moveToRecycleBin(file, options);
+                        }
+
+                        if(options.safeMode) {
+                            return true;
+                        }
+
+                        return fileUtils.copyFile(file.path, newPath);
+                    })
+                    .then(() => {
+                        stats.logEvent({
+                            module: MODULES.PHOTO_COPY,
+                            operation: 'copyPhotosToOneDrive',
+                            event: EVENTS.FILE_COPIED_TO_ONEDRIVE,
+                            data: {
+                                originalFile: file,
+                                destination: options.destDir,
+                                jobId: jobId
+                            }
+                        });
+                    });
+                })
+                .finally(() => {
+                    var totalTime = timer.end('Copy Photos to OneDrive');
+                    stats.logEvent({
+                        module: MODULES.PHOTO_COPY,
+                        operation: 'copyPhotosToOneDrive',
+                        event: EVENTS.DONE_COPY_TO_ONEDRIVE,
+                        status: STATUS_CODES.SUCCESS,
+                        data: {
+                            execTime: totalTime,
+                            jobId: jobId
+                        },
+                        message: util.format("OndeDrive photo copy is done")
+                    })
+                    resolve();
+                })
+                .catch(err => {
+                    console.log(err);
+                    reject();
+                });
             
             })
             

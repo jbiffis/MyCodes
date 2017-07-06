@@ -19,7 +19,7 @@ var task = function(photosAPI) {
                     return "Unsupported File Type";
                 }
                 
-                return fileUtils.getExifData(fileBuffer);
+                return fileUtils.getExifData(file.getProp("path"));
             })
             .then(exifData => {
                 file.data.exifData = exifData;

@@ -14,7 +14,11 @@ config.server = {
 
 
 config.options = {
-    basedir: 'E:\\TestDest'
+    basedir: 'E:\\TestDest',
+    otherPhotoFolders: [
+        'E:\\TestDest - Copy',
+        'E:\\TestSource - Copy'
+    ]
     //basedir: 'M:\\OneDrive\\Pictures'
 }
 

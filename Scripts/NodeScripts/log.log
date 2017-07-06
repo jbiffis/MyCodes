@@ -6317,3 +6317,19 @@
 {"level":"silly","message":"[M:\\Temp Photo Landing Zone\\From camera\\162___02\\MVI_1713.MOV] - File copied to [M:\\OneDrive\\Pictures\\2017\\02 - February\\MVI_1713.MOV]","timestamp":"2017-04-09T14:44:40.012Z"}
 {"level":"silly","message":"[M:\\Temp Photo Landing Zone\\From camera\\162___02\\MVI_1739.MOV] - File copied to [M:\\OneDrive\\Pictures\\2017\\02 - February\\MVI_1739.MOV]","timestamp":"2017-04-09T14:44:41.065Z"}
 {"level":"debug","message":"Done","timestamp":"2017-04-09T14:44:41.069Z"}
+{"level":"info","message":"Entering db.init()","timestamp":"2017-06-27T01:02:31.318Z"}
+{"level":"error","message":"Folder not found","timestamp":"2017-06-27T01:02:31.346Z"}
+{"level":"info","message":"db.init() - Connected to database","timestamp":"2017-06-27T01:02:31.477Z"}
+{"level":"debug","message":"Entered Job() with data: [{\"operation\":\"copyFilesToOneDrive\",\"data\":{\"folder\":\"M:\\\\Temp Photo Landing Zone\",\"destDir\":\"M:\\\\OneDrive\\\\Pictures\\\\Photos\",\"recycleBin\":\"M:\\\\RecycleBin\",\"safeMode\":false}}]","timestamp":"2017-06-27T01:02:31.496Z"}
+{"level":"debug","message":"Entered Job.save() save data for Job: [object Object]","timestamp":"2017-06-27T01:02:31.503Z"}
+{"level":"info","message":"Entering db.save() with collection jobs with doc {\"0\":{\"operation\":\"copyFilesToOneDrive\",\"data\":{\"folder\":\"M:\\\\Temp Photo Landing Zone\",\"destDir\":\"M:\\\\OneDrive\\\\Pictures\\\\Photos\",\"recycleBin\":\"M:\\\\RecycleBin\",\"safeMode\":false}},\"operation\":null,\"data\":null,\"dateCreated\":\"2017-06-27T01:02:31.496Z\",\"dateCompleted\":null,\"execTime\":null}","timestamp":"2017-06-27T01:02:31.532Z"}
+{"level":"info","message":"Entering db.init()","timestamp":"2017-06-27T01:04:22.661Z"}
+{"level":"info","message":"db.init() - Connected to database","timestamp":"2017-06-27T01:04:22.697Z"}
+{"level":"debug","message":"Entered Job() with data: [{\"operation\":\"copyFilesToOneDrive\",\"data\":{\"folder\":\"M:\\\\Temp Photo Landing Zone\",\"destDir\":\"M:\\\\OneDrive\\\\Pictures\\\\Photos\",\"recycleBin\":\"M:\\\\RecycleBin\",\"safeMode\":false}}]","timestamp":"2017-06-27T01:04:22.717Z"}
+{"level":"debug","message":"Entered Job.save() save data for Job: [object Object]","timestamp":"2017-06-27T01:04:22.723Z"}
+{"level":"info","message":"Entering db.save() with collection jobs with doc {\"0\":{\"operation\":\"copyFilesToOneDrive\",\"data\":{\"folder\":\"M:\\\\Temp Photo Landing Zone\",\"destDir\":\"M:\\\\OneDrive\\\\Pictures\\\\Photos\",\"recycleBin\":\"M:\\\\RecycleBin\",\"safeMode\":false}},\"operation\":null,\"data\":null,\"dateCreated\":\"2017-06-27T01:04:22.718Z\",\"dateCompleted\":null,\"execTime\":null}","timestamp":"2017-06-27T01:04:22.759Z"}
+{"level":"info","message":"Entering db.init()","timestamp":"2017-06-28T02:24:32.057Z"}
+{"level":"info","message":"db.init() - Connected to database","timestamp":"2017-06-28T02:24:32.123Z"}
+{"level":"debug","message":"Entered Job() with data: {\"operation\":\"copyFilesToOneDrive\",\"data\":{\"folder\":\"M:\\\\Temp Photo Landing Zone\",\"destDir\":\"M:\\\\OneDrive\\\\Pictures\\\\Photos\",\"recycleBin\":\"M:\\\\RecycleBin\",\"safeMode\":false}}","timestamp":"2017-06-28T02:24:32.204Z"}
+{"level":"debug","message":"Entered Job.save() save data for Job: [object Object]","timestamp":"2017-06-28T02:24:32.211Z"}
+{"level":"info","message":"Entering db.save() with collection jobs with doc {\"operation\":\"copyFilesToOneDrive\",\"data\":{\"folder\":\"M:\\\\Temp Photo Landing Zone\",\"destDir\":\"M:\\\\OneDrive\\\\Pictures\\\\Photos\",\"recycleBin\":\"M:\\\\RecycleBin\",\"safeMode\":false},\"dateCreated\":\"2017-06-28T02:24:32.204Z\",\"dateCompleted\":null,\"execTime\":null}","timestamp":"2017-06-28T02:24:32.306Z"}

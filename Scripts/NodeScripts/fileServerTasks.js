@@ -59,22 +59,21 @@ var prepareEmail = function(stats)  {
     return message;
 }
 
-var liveSet = [
     /*{
         "action"  :   hockeyVideos,
         "options" : {
             "folder" : "M:\\Videos\\Aylmer Express\\To Be Transcoded"
         }
-    },*/ {
+    },*/
+var liveSet = {
         "operation"  :   TASK_PROCESSORS.COPY_TO_ONEDRIVE,
         "data" : {
             "folder"    :  "M:\\Temp Photo Landing Zone",
             "destDir"   :  "M:\\OneDrive\\Pictures\\Photos",
             "recycleBin":   "M:\\RecycleBin",
-            "safeMode"  :   false    // Don't actually copy files
+            "safeMode"  :   false    
         }
     }
-]
 
 var dev = [
     {
@@ -83,13 +82,13 @@ var dev = [
             "folder"    :  "E:\\TestSrc",
             "destDir"   :  "E:\\TestDest",
             "recycleBin":   "E:\\RecycleBin",
-            "safeMode"  :   false    // Don't actually copy files
+            "safeMode"  :   false
         }
     }
 ]
 photosAPI.init()
 .then(() => {
-    photosAPI.jobs.add(dev)
+    photosAPI.jobs.add(liveSet)
 })
 
 /*

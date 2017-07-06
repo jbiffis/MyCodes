@@ -68,6 +68,7 @@ getExifData = function (filePath) {
                 if (error) {
                     resolve(error);
                 } else if (exifData && exifData.exif) {
+                    // TODO Convert dates to ISO
                         exifData.exif && exifData.exif.MakerNote && (exifData.exif.MakerNote = {});
                         exifData.exif && exifData.exif.UserComment && (exifData.exif.UserComment = {});
                         resolve(exifData);

@@ -16,11 +16,11 @@ var db;
 module.exports = {
 
     init: function() {
-      logger.info("Entering db.init()");
+      logger.debug("Entering db.init()");
 
       return MongoClient.connectAsync(CONFIG.server.database)
         .then(function(result) {
-          logger.info("db.init() - Connected to database");
+          logger.debug("db.init() - Connected to database");
 
           db = result;
         }).error(function(err) {
@@ -29,7 +29,7 @@ module.exports = {
     },
 
     findOne: function(col, query, opts) {
-      logger.info("Entering db.findOne() in collection %s with query %s", col, JSON.stringify(query), JSON.stringify(opts));
+      logger.debug("Entering db.findOne() in collection %s with query %s", col, JSON.stringify(query), JSON.stringify(opts));
 
       var options = opts || {};
       return db.collection(col)
@@ -37,7 +37,7 @@ module.exports = {
     },
 
     find: function(col, query, opts) {
-      logger.info("Entering db.find() in collection %s with query %s, %s", col, JSON.stringify(query), JSON.stringify(opts));
+      logger.debug("Entering db.find() in collection %s with query %s, %s", col, JSON.stringify(query), JSON.stringify(opts));
 
       var options = opts || {};
       return db.collection(col)
@@ -47,14 +47,14 @@ module.exports = {
     },
 
     add: function(col, doc) {
-      logger.info("Entering db.save() with collection %s with doc %s", col, JSON.stringify(doc));
+      logger.debug("Entering db.save() with collection %s with doc %s", col, JSON.stringify(doc));
 
       return db.collection(col)
         .insertAsync(doc);
     },
 
     update: function(col, query, doc) {
-      logger.info("Entering db.update() with collection %s with query %s", col, JSON.stringify(query));
+      logger.debug("Entering db.update() with collection %s with query %s", col, JSON.stringify(query));
 
       return db.collection(col)
         .findOneAndUpdateAsync(
@@ -65,7 +65,7 @@ module.exports = {
     },
 
     removeDocuments: function(col, query) {
-      logger.info("Entering db.removeDocuments() with collection %s with query %s", col, JSON.stringify(query));
+      logger.debug("Entering db.removeDocuments() with collection %s with query %s", col, JSON.stringify(query));
 
       return db.collection(col)
         .removeAsync(
@@ -74,7 +74,7 @@ module.exports = {
     },
 
     count: function(col, query) {
-      logger.info("Entering db.count() in collection %s with query %s", col, JSON.stringify(query));
+      logger.debug("Entering db.count() in collection %s with query %s", col, JSON.stringify(query));
 
       return db.collection(col).countAsync(query);
     }

@@ -73,6 +73,7 @@ function runJob(job) {
     var taskProcessor = require('../TaskProcessors/'+op+'.js')(photosAPI, job.data._id);
 
     if (!taskProcessor) {
+        // TODO This should log the error and continue
         logger.error("No task processor found for operation [%s]", op);
         return null;
     }

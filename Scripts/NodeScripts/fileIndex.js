@@ -77,11 +77,11 @@ logger.level = 'silly';
 //fileIndexer1.buildIndex('M:\\OneDrive\\Pictures\\photos')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Photos\\2012\\trip')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Hospital-prints')
-fileIndexer1.buildIndex('E:\\TestSrc')
+//fileIndexer1.buildIndex('E:\\TestSrc')
 //fileIndexer1.buildIndex('E:\\SkyDrive\\Pictures\\Photos\\2011')
-  .then((dataset) =>  {
-      console.log("Number of Files: " + dataset.length);
-    });
+  //.then((dataset) =>  {
+      //    console.log("Number of Files: " + dataset.length);
+    //});
 /*
 //fileIndexer.buildIndex('M:\\OneDrive\\Pictures')
 //fileIndexer.buildIndex('E:\\ForBackup\\Temp Photo Landing Zone\\From camera')
