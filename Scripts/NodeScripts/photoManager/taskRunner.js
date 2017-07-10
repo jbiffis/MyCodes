@@ -10,6 +10,8 @@ var photosAPI = require('../interfaces/photoJSON.js');
 logger.level = 'silly';
 
 var jobInProgress = false;
+var checkInterval = [1, 2, 5, 10,30, 60, 90, 180];
+var checkPos = 0;
 
 var taskRunner = function() {
     return {
@@ -22,21 +24,36 @@ var taskRunner = function() {
 
 taskRunner().start();
 
+var interval;
+
 function start() {
     return photosAPI.init()
         .then(() => {
-            setInterval(this.jobLoop, 1000);
+            checkTimer();
         })
 }
 
-function jobLoop() {
-    if (jobInProgress) return;
+function checkTimer() {
+    jobInProgress = false;
 
+    var waitTime = checkInterval[checkPos];
+
+    logger.debug("Waiting to check new jobs in %d seconds", waitTime);
+    setTimeout(jobLoop, waitTime*1000);
+
+    checkPos = Math.min(++checkPos, checkInterval.length-1);
+}
+
+function pauseLoop() {
+    jobInProgress = true;
+}
+
+function jobLoop() {
     Promise.try(function() {
         return findNextJob();
     }).then(function(task) {
         if (task) {
-            jobInProgress = true;
+            pauseLoop();
             timer.start('JobTimer');
             return runJob(task);
         } 
@@ -56,9 +73,10 @@ function jobLoop() {
             execTime: totalTime
         });
 
+        checkPos = 0;
         return results.job.markComplete();
-    }).then((result) => {
-        jobInProgress = false;
+    }).finally((result) => {
+        checkTimer();
     });
 }
 
