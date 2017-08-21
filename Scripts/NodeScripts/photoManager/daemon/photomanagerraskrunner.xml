@@ -1,0 +1,25 @@
+<service>
+	<id>photomanagerraskrunner.exe</id>
+	<name>Photo Manager Rask Runner</name>
+	<description>Task runner for the Photo Manager</description>
+	<executable>C:\Program Files\nodejs\node.exe</executable>
+	<logmode>rotate</logmode>
+	<argument>--harmony</argument>
+	<argument>C:\Users\user\AppData\Roaming\npm\node_modules\node-windows\lib\wrapper.js</argument>
+	<argument>--file</argument>
+	<argument>M:\OneDrive\projects\Codes\Scripts\NodeScripts\photoManager\taskRunner.js</argument>
+	<argument>--log</argument>
+	<argument>Photo Manager Rask Runner wrapper</argument>
+	<argument>--grow</argument>
+	<argument>0.25</argument>
+	<argument>--wait</argument>
+	<argument>1</argument>
+	<argument>--maxrestarts</argument>
+	<argument>3</argument>
+	<argument>--abortonerror</argument>
+	<argument>n</argument>
+	<argument>--stopparentfirst</argument>
+	<argument>undefined</argument>
+	<stoptimeout>30sec</stoptimeout>
+	<workingdirectory>M:\OneDrive\projects\Codes\Scripts\NodeScripts</workingdirectory>
+</service>

@@ -1,4 +1,5 @@
 require('../constants.js');
+require('./crons.js');
 var Promise = require("bluebird");
 var async = require('async');
 var parallelLimit = require('run-parallel-limit');
@@ -7,7 +8,9 @@ var timer = require('perfy');
 const logger = require('winston');
 var photosAPI = require('../interfaces/photoJSON.js');
 
-logger.level = 'silly';
+var logFile = 'E:\\Script Logs\\log-'+ new Date().toISOString().slice(0, 10) +'.log';
+logger.add(logger.transports.File, { filename: logFile, prettyPrint: true });
+logger.level = 'debug';
 
 var jobInProgress = false;
 var checkInterval = [1, 2, 5, 10,30, 60, 90, 180];
